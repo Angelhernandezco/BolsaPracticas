@@ -12,7 +12,9 @@
     "db:inspect": "node --env-file=.env scripts/inspect-db.js",
     "mail:check": "node --env-file=.env scripts/check-mail.js",
     "db:seed:demo": "node --env-file=.env prisma/seed-demo.js",
-    "test:prepare": "node --env-file=.env scripts/prepare-test-db.js"
+    "test:prepare": "node --env-file=.env scripts/prepare-test-db.js",
+    "db:sql:generate": "node scripts/generate-install-sql.js",
+    "db:seed:assets": "node --env-file=.env scripts/prepare-demo-assets.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.900.0",

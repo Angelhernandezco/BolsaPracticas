@@ -1,33 +1,9 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcrypt"
-export const careers = [
-  "Ingeniería en Software",
-  "Ingeniería Informática",
-  "Ingeniería Civil",
-  "Ingeniería Industrial",
-  "Diseño Gráfico",
-  "Administración de Empresas",
-  "Contaduría Pública",
-  "Mercadotecnia",
-]
+import { loadSeedData, seedCatalogs } from "./seed-data.js";
+export const careers = loadSeedData().careers.filter(career => career.active).map(career => career.name);
 export async function seed(prisma, env = {}) {
-  for (const [id, name] of [
-    [1, "ESTUDIANTE"],
-    [2, "EMPRESA"],
-    [3, "ADMIN"],
-  ])
-    await prisma.role.upsert({
-      where: { id },
-      create: { id, name },
-      update: {},
-    })
-  const keys=["software","informatica","civil","industrial","diseno","administracion","contaduria","mercadotecnia"];
-  for (const [index,name] of careers.entries())
-    await prisma.career.upsert({
-      where: { seedKey: keys[index] },
-      create: { name, seedKey: keys[index] },
-      update: {},
-    })
+  await seedCatalogs(prisma);
   if (env.ADMIN_EMAIL && env.ADMIN_PASSWORD) {
     if (env.ADMIN_PASSWORD.length < 12)
       throw new Error("ADMIN_PASSWORD requiere al menos 12 caracteres.")

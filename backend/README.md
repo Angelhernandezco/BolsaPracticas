@@ -10,7 +10,7 @@ Desde la raíz:
 npm install
 npm --prefix backend install
 Copy-Item backend/.env.example backend/.env
-Copy-Item .env.example .env.local
+Copy-Item frontend/.env.example frontend/.env.local
 ```
 
 Completa `backend/.env` antes de continuar. **En la entrega local ya está configurado; no lo sobrescribas con el ejemplo.** Contiene la conexión PostgreSQL y Gmail proporcionadas, un JWT_SECRET aleatorio y la contraseña privada del administrador. Ningún secreto pertenece a Git ni a variables VITE_.
@@ -27,10 +27,10 @@ En otra terminal: `npm run dev`, solo si el servidor de Vite no está ya funcion
 ## Base de datos y SQL
 
 - `prisma/schema.prisma`: modelo; `prisma/migrations`: historial reproducible.
-- `sql/bolsa_practicas.sql`: CREATE TABLE e índices del esquema final, para **base nueva vacía**, no para ejecutarlo encima de tablas existentes. No contiene DROP TABLE ni contraseñas.
+- `sql/bolsa_practicas.sql`: CREATE TABLE e índices del esquema final, para **base nueva vacía**, no para ejecutarlo encima de tablas existentes. Incluye únicamente hashes y contraseñas públicas de demostración; nunca las credenciales privadas. No contiene DROP TABLE.
 - `db:inspect`: lista tablas sin volcar información personal.
-- En esta entrega se inspeccionó la base original: ocho tablas sin usuarios, perfiles, convocatorias ni postulaciones. Se reconoció `202610290001_baseline` y se aplicó la migración aditiva `202610290002_integration`, sin eliminar tablas.
-- Para otra instalación con el esquema original, comprueba primero que coincide con la migración baseline, realiza respaldo y marca esa migración con `npx prisma migrate resolve --applied 202610290001_baseline` desde backend; después `db:migrate`. No marques baseline en una base vacía, porque ahí deben ejecutarse ambas migraciones.
+- Las migraciones de carreras y convenios conservan los datos. El booleano anterior de convenio se elimina: los periodos quedan sin fechas hasta que el administrador los capture; no se inventan periodos históricos.
+- En una base vacía usa `db:migrate` y `db:seed`. Si importaste el SQL final en una base nueva, marca las cuatro migraciones existentes con `prisma migrate resolve --applied <nombre>` antes de usar `db:migrate`; no vuelvas a crear esas tablas. Comprueba que el esquema coincida antes de reconocer migraciones.
 - Las migraciones conservan las columnas de claves antiguas como legado. Datos o archivos previos no se inventan ni convierten automáticamente; una instalación con datos requiere revisar su contenido antes de migrar.
 - Matrícula, RFC, correo, perfil por usuario y postulación por estudiante/convocatoria son únicos. Carreras/roles se siembran idempotentemente. Los nombres internos Prisma están mapeados a tablas y columnas en español.
 
@@ -49,9 +49,32 @@ npm --prefix backend run db:seed:demo
 
 Crea las cuentas que muestra la pantalla de acceso, con la contraseña de demostración visible allí, un CV de ejemplo y convocatorias abierta/cerrada/borrador. No envía correos. Si ya existe cualquiera de los correos reservados, omite la semilla completa sin modificar perfiles, CV ni relaciones; repetirla conserva lo existente. **No habilites esta semilla en producción**; las cuentas verificadas son datos de demostración explícitos. El administrador privado de `.env` es independiente del administrador demo.
 
+## Carreras y convenios
+
+Solo el administrador crea, renombra, desactiva o reactiva carreras. Los nombres son únicos incluso entre carreras inactivas, ignorando espacios exteriores y mayúsculas. El ID permanece estable y las asociaciones existentes se conservan; las inactivas dejan de ofrecerse en nuevas selecciones. Las semillas usan claves estables y nunca restauran nombres o estados editados.
+
+El periodo de convenio es opcional: ambas fechas vacías, o ambas completas con fin igual o posterior al inicio. Son columnas DATE sin hora. El estado no se almacena: el navegador calcula «Sin convenio», «Próximo a iniciar», «Activo» o «Vencido» según su fecha local, incluyendo todo el último día y actualizándose al cambiar de día o recuperar el foco. Cada fecha y el estado tienen su columna en empresas.
+
+## SQL y semillas compartidas
+
+`fixtures/seed-data.json` es el único manifiesto de los escenarios fijos: roles, carreras, cuentas demo/E2E, empresas con los cuatro estados de convenio, convocatorias, postulaciones y metadatos de CV. El modo mock lo consume sin habilitarse en la API real. No incluye los registros aleatorios de pruebas anteriores, usuarios privados, sesiones o tokens. Las pruebas crean sus datos variables únicamente en la base `_test`.
+
+```powershell
+# Desde la raíz. Referencia predeterminada reproducible: 2026-10-29.
+$env:SEED_REFERENCE_DATE="2026-10-29"
+npm --prefix backend run db:sql:generate
+# Importa backend/sql/bolsa_practicas.sql SOLO en una base nueva y vacía.
+# Después de importar, prepara los bytes del PDF en el almacenamiento local:
+npm --prefix backend run db:seed:assets
+```
+
+El SQL contiene fechas explícitas calculadas desde esa referencia. Cambiar `SEED_REFERENCE_DATE` y regenerarlo actualiza los escenarios relativos. `db:seed:demo` utiliza la misma referencia y el mismo manifiesto. El SQL por sí solo no restaura bytes: `db:seed:assets` copia el PDF de `frontend/public/demo-cv.pdf` únicamente a las claves demo de sus propietarios declarados, con escritura exclusiva, sin sobrescribir archivos. Los metadatos conservan driver local aunque las nuevas subidas se configuren para S3. No ejecutes la semilla demo en producción.
+
 ## Correo y sesiones
 
 SMTP Gmail con contraseña de aplicación en `EMAIL_PASSWORD`; admite espacios de agrupación. `mail:check` comprueba conexión/autenticación sin enviar correos. Un registro real envía el enlace al destinatario registrado. Si falla, conserva la cuenta pendiente y permite reenviar; la UI informa el fallo. Las pruebas automáticas capturan mensajes, no envían a destinatarios ficticios.
+
+Al aprobar una empresa se guarda atómicamente una notificación y una copia de sus fechas. El envío posterior utiliza el correo de la cuenta, el enlace de acceso y la fecha de referencia de America/Mazatlan. Un fallo SMTP conserva la aprobación y queda visible en el detalle administrativo con reintento. Cambiar fechas o rechazar una solicitud no envía este correo. La reclamación atómica y su plazo de 60 segundos evitan envíos simultáneos y permiten recuperar un proceso interrumpido. Si SMTP acepta el mensaje y el proceso cae antes de guardar el resultado, un reintento puede duplicarlo; no se garantiza entrega exactamente una vez. No hay un trabajador automático: el administrador reintenta los pendientes/fallidos desde el detalle.
 
 Tokens aleatorios: se guarda SHA-256, vencen a las 24 horas, uso único y reenvío después de 60 segundos. El nuevo enlace invalida los anteriores pendientes. Abrir un enlace ajeno no cambia la identidad de la sesión. La verificación usa POST `/api/auth/email/verify` y la pantalla conserva `/verificar-email?token=...`.
 
@@ -98,6 +121,6 @@ Se cubren autorización, sesiones, correo, concurrencia, perfiles, CV inmutable,
 
 ## Producción y límites de esta entrega
 
-No incluye desplegar AWS ni configurar bucket, DNS o TLS. Configura `NODE_ENV=production`, HTTPS en el proxy y FRONTEND_URL correcto; usa secretos privados y elimina datos demo. Opcionalmente `SERVE_FRONTEND=true` sirve el build de la raíz con Express después de `npm run build`, manteniendo `/api` reservado.
+No incluye desplegar AWS ni configurar bucket, DNS o TLS. Configura `NODE_ENV=production`, HTTPS en el proxy y FRONTEND_URL correcto; usa secretos privados y elimina datos demo. Opcionalmente `SERVE_FRONTEND=true` sirve `frontend/dist` con Express después de `npm run build`, manteniendo `/api` reservado.
 
 Los cambios de Figma que estaban sin commit se conservaron; los archivos de frontend quedan disponibles como cambios locales para revisar junto con esa versión. No se incorporan automáticamente a commits de backend ni se hace push/merge.

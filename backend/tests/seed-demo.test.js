@@ -5,6 +5,8 @@ import { spawnSync } from "node:child_process"
 import { PrismaClient } from "@prisma/client"
 import { backendRoot, assertTestDatabase } from "../src/config.js"
 import { seed } from "../prisma/seed.js"
+import { loadSeedData } from "../prisma/seed-data.js"
+const manifest = loadSeedData()
 async function sandbox() {
   assertTestDatabase(
     process.env.DATABASE_URL,
@@ -103,14 +105,14 @@ test("demo_seed_creates_fixtures_only_for_new_accounts_and_repeat_is_safe", asyn
   const { db, run } = await sandbox()
   try {
     run()
-    assert.equal(await db.user.count(), 7)
-    assert.equal(await db.opportunity.count(), 3)
-    assert.equal(await db.application.count(), 1)
+    assert.equal(await db.user.count(), manifest.users.length)
+    assert.equal(await db.opportunity.count(), manifest.opportunities.length)
+    assert.equal(await db.application.count(), manifest.applications.length)
     const cvCount = await db.storedFile.count()
     run()
-    assert.equal(await db.user.count(), 7)
-    assert.equal(await db.opportunity.count(), 3)
-    assert.equal(await db.application.count(), 1)
+    assert.equal(await db.user.count(), manifest.users.length)
+    assert.equal(await db.opportunity.count(), manifest.opportunities.length)
+    assert.equal(await db.application.count(), manifest.applications.length)
     assert.equal(await db.storedFile.count(), cvCount)
   } finally {
     await db.$disconnect()

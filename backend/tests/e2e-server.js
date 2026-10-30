@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcrypt"
+import {loadSeedData} from "../prisma/seed-data.js"
 import { appendFile, mkdir } from "node:fs/promises"
 import { createApp } from "../src/app.js"
 import { loadConfig, assertTestDatabase } from "../src/config.js"
@@ -10,46 +10,12 @@ assertTestDatabase(
 )
 const prisma = new PrismaClient()
 await seed(prisma)
-for (const [email, roleId] of [
-  ["e2e-admin@example.com", 3],
-  ["e2e-company@example.com", 2],
-  ["e2e-student@uas.edu", 1],
-]) {
-  const career = await prisma.career.findFirst()
-  await prisma.user.upsert({
-    where: { email },
-    update: {},
-    create: {
-      email,
-      name: roleId === 2 ? "Empresa E2E" : "Cuenta E2E",
-      roleId,
-      emailVerified: true,
-      passwordHash: await bcrypt.hash("TestPassword123!", 4),
-      ...(roleId === 2
-        ? {
-            company: {
-              create: {
-                name: "Empresa E2E",
-                rfc: "E2E210101ABC",
-                giro: "Tecnología",
-                address: "Dirección E2E",
-                approvalStatus: "approved",
-              },
-            },
-          }
-        : roleId === 1
-          ? {
-              student: {
-                create: {
-                  name: "Cuenta E2E",
-                  matricula: "e2e-student",
-                  careerId: career.id,
-                },
-              },
-            }
-          : {}),
-    },
-  })
+const manifest=loadSeedData();
+for(const account of manifest.users.filter(user=>user.passwordKey==='e2e')) {
+  const roleId={student:1,company:2,admin:3}[account.role];
+  const career=await prisma.career.findUniqueOrThrow({where:{seedKey:'software'}});
+  await prisma.user.upsert({where:{email:account.email},update:{},create:{email:account.email,name:account.name,roleId,emailVerified:true,passwordHash:manifest.passwords.e2e.hash,
+    ...(roleId===2?{company:{create:{name:account.name,rfc:account.rfc,giro:account.giro,address:account.address,approvalStatus:account.approvalStatus}}}:roleId===1?{student:{create:{name:account.name,matricula:account.matricula,careerId:career.id}}}:{})}});
 }
 await mkdir("backend/storage-test", { recursive: true })
 const mailer = {

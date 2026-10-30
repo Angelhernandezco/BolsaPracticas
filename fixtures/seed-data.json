@@ -1,0 +1,521 @@
+{
+  "version": 1,
+  "referenceDate": "2026-10-29",
+  "roles": [
+    {
+      "id": 1,
+      "name": "ESTUDIANTE"
+    },
+    {
+      "id": 2,
+      "name": "EMPRESA"
+    },
+    {
+      "id": 3,
+      "name": "ADMIN"
+    }
+  ],
+  "careers": [
+    {
+      "key": "software",
+      "name": "Ingeniería en Software",
+      "active": true
+    },
+    {
+      "key": "informatica",
+      "name": "Ingeniería Informática",
+      "active": true
+    },
+    {
+      "key": "civil",
+      "name": "Ingeniería Civil",
+      "active": true
+    },
+    {
+      "key": "industrial",
+      "name": "Ingeniería Industrial",
+      "active": true
+    },
+    {
+      "key": "diseno",
+      "name": "Diseño Gráfico",
+      "active": true
+    },
+    {
+      "key": "administracion",
+      "name": "Administración de Empresas",
+      "active": true
+    },
+    {
+      "key": "contaduria",
+      "name": "Contaduría Pública",
+      "active": true
+    },
+    {
+      "key": "mercadotecnia",
+      "name": "Mercadotecnia",
+      "active": true
+    },
+    {
+      "key": "legacy-demo",
+      "name": "Carrera histórica de demostración",
+      "active": false
+    }
+  ],
+  "passwords": {
+    "demo": {
+      "plain": "Demo1234",
+      "hash": "$2b$12$y06A73GXZABpG3zCnxa1u.8eVgSA1.9MnKAM7tERHv3Y/L5qH2aem"
+    },
+    "e2e": {
+      "plain": "TestPassword123!",
+      "hash": "$2b$04$4DrwcADDKhK4oKYENg8sg./pNrchhUR8T/8DCKl03T77lWQSEac0O"
+    }
+  },
+  "users": [
+    {
+      "id": "student-1",
+      "role": "student",
+      "name": "Mariana López",
+      "email": "mariana.lopez@uas.edu",
+      "emailVerified": true,
+      "registeredAt": "2026-09-12",
+      "matricula": "2023001842",
+      "university": "Universidad Autónoma de Sinaloa",
+      "career": "Ingeniería en Software",
+      "phone": "668 123 4567",
+      "bio": "Estudiante interesada en desarrollo frontend y productos digitales.",
+      "cvName": "CV_Mariana_Lopez.pdf",
+      "cvUpdatedAt": "2026-10-01",
+      "cvUrl": "/demo-cv.pdf",
+      "passwordKey": "demo",
+      "fileKey": "d0000000-0000-4000-8000-000000000001"
+    },
+    {
+      "id": "student-unverified",
+      "role": "student",
+      "name": "Diego Ramírez",
+      "email": "diego.ramirez@uas.edu",
+      "emailVerified": false,
+      "registeredAt": "2026-10-08",
+      "matricula": "2024002210",
+      "university": "Universidad Autónoma de Sinaloa",
+      "career": "Ingeniería Civil",
+      "passwordKey": "demo"
+    },
+    {
+      "id": "company-1",
+      "role": "company",
+      "name": "Nébula Digital",
+      "email": "empresa@demo.mx",
+      "emailVerified": true,
+      "registeredAt": "2026-08-20",
+      "approvalStatus": "approved",
+      "rfc": "NDI210315AB1",
+      "contact": "talento@nebuladigital.mx",
+      "phone": "668 246 8024",
+      "bio": "Creamos productos digitales útiles para organizaciones en crecimiento.",
+      "giro": "Tecnologías de la información",
+      "address": "Blvd. Centenario 850, Los Mochis, Sinaloa",
+      "passwordKey": "demo",
+      "agreementOffsets": [
+        -30,
+        30
+      ]
+    },
+    {
+      "id": "company-unverified",
+      "role": "company",
+      "name": "Servicios del Pacífico",
+      "email": "empresa.sinverificar@demo.mx",
+      "emailVerified": false,
+      "registeredAt": "2026-10-09",
+      "approvalStatus": "pending",
+      "rfc": "SPA220512AB2",
+      "giro": "Servicios profesionales",
+      "address": "Av. Independencia 220, Culiacán, Sinaloa",
+      "passwordKey": "demo",
+      "agreementOffsets": null
+    },
+    {
+      "id": "company-pending",
+      "role": "company",
+      "name": "Constructora Delta",
+      "email": "pendiente@demo.mx",
+      "emailVerified": true,
+      "registeredAt": "2026-10-07",
+      "approvalStatus": "pending",
+      "rfc": "CDE190822CD3",
+      "giro": "Construcción",
+      "address": "Río Fuerte 412, Los Mochis, Sinaloa",
+      "phone": "668 222 1144",
+      "bio": "Empresa regional de construcción e infraestructura.",
+      "passwordKey": "demo",
+      "agreementOffsets": null
+    },
+    {
+      "id": "company-rejected",
+      "role": "company",
+      "name": "Comercial Nova",
+      "email": "rechazada@demo.mx",
+      "emailVerified": true,
+      "registeredAt": "2026-09-28",
+      "approvalStatus": "rejected",
+      "rejectionReason": "La información fiscal proporcionada no coincide con los datos del perfil.",
+      "resolvedAt": "2026-10-02",
+      "resolvedBy": "Administrador Bolsa Prácticas",
+      "rfc": "CNO210101EF4",
+      "giro": "Comercio",
+      "address": "Zona Centro, Guasave, Sinaloa",
+      "passwordKey": "demo",
+      "agreementOffsets": null
+    },
+    {
+      "id": "company-2",
+      "role": "company",
+      "name": "AgroNova",
+      "email": "agronova@demo.mx",
+      "emailVerified": true,
+      "registeredAt": "2026-07-18",
+      "approvalStatus": "approved",
+      "rfc": "AGR200410GH5",
+      "giro": "Agrotecnología",
+      "address": "Carretera México 15 km 12, Guasave",
+      "passwordKey": "demo",
+      "agreementOffsets": [
+        -60,
+        -1
+      ]
+    },
+    {
+      "id": "company-3",
+      "role": "company",
+      "name": "Estudio Norte",
+      "email": "estudio@demo.mx",
+      "emailVerified": true,
+      "registeredAt": "2026-06-03",
+      "approvalStatus": "approved",
+      "rfc": "ENO180625IJ6",
+      "giro": "Diseño y comunicación",
+      "address": "Ángel Flores 310, Culiacán",
+      "passwordKey": "demo",
+      "agreementOffsets": [
+        10,
+        90
+      ]
+    },
+    {
+      "id": "admin-1",
+      "role": "admin",
+      "name": "Administrador Bolsa Prácticas",
+      "email": "admin@demo.mx",
+      "emailVerified": true,
+      "registeredAt": "2026-01-01",
+      "passwordKey": "demo"
+    },
+    {
+      "id": "student-2",
+      "applicationId": "app-4",
+      "name": "Carlos Mendoza",
+      "career": "Ingeniería Informática",
+      "date": "2026-10-02",
+      "cvName": "CV_Carlos_Mendoza.pdf",
+      "cvUrl": "/demo-cv.pdf",
+      "initials": "CM",
+      "email": "carlos.mendoza@uas.edu",
+      "phone": "668 234 5678",
+      "bio": "Interesado en aseguramiento de calidad y automatización.",
+      "role": "student",
+      "emailVerified": true,
+      "registeredAt": "2026-09-01",
+      "matricula": "DEMO-student-2",
+      "university": "Universidad Autónoma de Sinaloa",
+      "passwordKey": "demo",
+      "fileKey": "d0000000-0000-4000-8000-000000000010"
+    },
+    {
+      "id": "student-3",
+      "applicationId": "app-5",
+      "name": "Ana Sofía Ruiz",
+      "career": "Diseño Gráfico",
+      "date": "2026-09-30",
+      "cvName": "CV_Ana_Ruiz.pdf",
+      "cvUrl": "/demo-cv.pdf",
+      "initials": "AR",
+      "email": "ana.ruiz@uas.edu",
+      "phone": "668 345 6789",
+      "bio": "Diseñadora enfocada en experiencias digitales accesibles.",
+      "role": "student",
+      "emailVerified": true,
+      "registeredAt": "2026-09-01",
+      "matricula": "DEMO-student-3",
+      "university": "Universidad Autónoma de Sinaloa",
+      "passwordKey": "demo",
+      "fileKey": "d0000000-0000-4000-8000-000000000011"
+    },
+    {
+      "id": "e2e-admin",
+      "name": "Cuenta E2E",
+      "role": "admin",
+      "email": "e2e-admin@example.com",
+      "emailVerified": true,
+      "registeredAt": "2026-10-01",
+      "passwordKey": "e2e"
+    },
+    {
+      "id": "e2e-company",
+      "name": "Empresa E2E",
+      "role": "company",
+      "email": "e2e-company@example.com",
+      "emailVerified": true,
+      "registeredAt": "2026-10-01",
+      "rfc": "E2E210101ABC",
+      "giro": "Tecnología",
+      "address": "Dirección E2E",
+      "approvalStatus": "approved",
+      "passwordKey": "e2e"
+    },
+    {
+      "id": "e2e-student",
+      "name": "Cuenta E2E",
+      "role": "student",
+      "email": "e2e-student@uas.edu",
+      "emailVerified": true,
+      "registeredAt": "2026-10-01",
+      "matricula": "e2e-student",
+      "career": "Ingeniería en Software",
+      "passwordKey": "e2e"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "op-1",
+      "companyId": "company-1",
+      "company": "Nébula Digital",
+      "title": "Practicante de Desarrollo Frontend",
+      "description": "Participa en el diseño y desarrollo de experiencias web para productos digitales. Trabajarás con React, TypeScript y un equipo multidisciplinario.",
+      "area": "Tecnologías de la información",
+      "slots": 3,
+      "publishedAt": "2026-10-04",
+      "contact": "talento@nebuladigital.mx",
+      "contactName": "Laura Mendoza",
+      "contactEmail": "talento@nebuladigital.mx",
+      "contactPhone": "668 246 8024",
+      "careerIds": [
+        "Ingeniería en Software",
+        "Ingeniería Informática"
+      ],
+      "closingDate": "offset:30",
+      "timezone": "America/Mazatlan",
+      "status": "open",
+      "applications": 8,
+      "initials": "ND"
+    },
+    {
+      "id": "op-2",
+      "companyId": "company-2",
+      "company": "AgroNova",
+      "title": "Analista de Datos Jr.",
+      "description": "Apoya al equipo de inteligencia de negocio en la limpieza, análisis y visualización de datos.",
+      "area": "Ciencia de datos",
+      "slots": 2,
+      "publishedAt": "2026-10-02",
+      "contact": "personas@agronova.mx",
+      "contactName": "Óscar Vega",
+      "contactEmail": "personas@agronova.mx",
+      "careerIds": [
+        "Ingeniería en Software",
+        "Ingeniería Informática"
+      ],
+      "closingDate": "offset:18",
+      "timezone": "America/Mazatlan",
+      "status": "open",
+      "applications": 5,
+      "initials": "AN"
+    },
+    {
+      "id": "op-3",
+      "companyId": "company-3",
+      "company": "Estudio Norte",
+      "title": "Prácticas de Diseño de Producto",
+      "description": "Colabora en investigación de usuarios, prototipos y sistemas de diseño.",
+      "area": "Diseño",
+      "slots": 1,
+      "publishedAt": "2026-09-29",
+      "contact": "hola@estudionorte.mx",
+      "contactName": "Sofía Ríos",
+      "contactEmail": "hola@estudionorte.mx",
+      "careerIds": [
+        "Diseño Gráfico"
+      ],
+      "closingDate": "offset:12",
+      "timezone": "America/Mazatlan",
+      "status": "open",
+      "applications": 12,
+      "initials": "EN"
+    },
+    {
+      "id": "op-4",
+      "companyId": "company-1",
+      "company": "Nébula Digital",
+      "title": "Practicante de QA y Automatización",
+      "description": "Diseña pruebas y apoya la automatización de flujos críticos.",
+      "area": "Tecnologías de la información",
+      "slots": 2,
+      "publishedAt": "2026-09-24",
+      "contact": "talento@nebuladigital.mx",
+      "contactName": "Laura Mendoza",
+      "contactEmail": "talento@nebuladigital.mx",
+      "careerIds": [
+        "Ingeniería en Software"
+      ],
+      "closingDate": "offset:-2",
+      "timezone": "America/Mazatlan",
+      "status": "open",
+      "applications": 4,
+      "initials": "ND"
+    },
+    {
+      "id": "op-5",
+      "companyId": "company-1",
+      "company": "Nébula Digital",
+      "title": "Soporte de infraestructura cloud",
+      "description": "Apoyo al equipo de operaciones en documentación y monitoreo.",
+      "area": "Infraestructura",
+      "slots": 2,
+      "publishedAt": "2026-08-15",
+      "contact": "talento@nebuladigital.mx",
+      "contactName": "Laura Mendoza",
+      "contactEmail": "talento@nebuladigital.mx",
+      "careerIds": [
+        "Ingeniería Informática"
+      ],
+      "closingDate": "offset:15",
+      "timezone": "America/Mazatlan",
+      "status": "closed",
+      "applications": 9,
+      "initials": "ND"
+    },
+    {
+      "id": "op-draft",
+      "companyId": "company-1",
+      "company": "Nébula Digital",
+      "title": "Prácticas de soporte técnico",
+      "description": "",
+      "area": "",
+      "slots": 0,
+      "publishedAt": "",
+      "contactName": "",
+      "contactEmail": "",
+      "careerIds": [],
+      "closingDate": "",
+      "timezone": "America/Mazatlan",
+      "status": "draft",
+      "applications": 0,
+      "initials": "ND"
+    }
+  ],
+  "applications": [
+    {
+      "id": "app-1",
+      "opportunityId": "op-2",
+      "studentId": "student-1",
+      "opportunityTitle": "Analista de Datos Jr.",
+      "companyName": "AgroNova",
+      "opportunityStatus": "open",
+      "date": "2026-10-03",
+      "status": "EN_REVISION"
+    },
+    {
+      "id": "app-2",
+      "opportunityId": "op-3",
+      "studentId": "student-1",
+      "opportunityTitle": "Prácticas de Diseño de Producto",
+      "companyName": "Estudio Norte",
+      "opportunityStatus": "open",
+      "date": "2026-10-01",
+      "status": "ACEPTADA"
+    },
+    {
+      "id": "app-3",
+      "opportunityId": "op-1",
+      "studentId": "student-1",
+      "opportunityTitle": "Practicante de Desarrollo Frontend",
+      "companyName": "Nébula Digital",
+      "opportunityStatus": "open",
+      "date": "2026-10-05",
+      "status": "ENVIADA"
+    },
+    {
+      "id": "app-closed",
+      "opportunityId": "op-4",
+      "studentId": "student-1",
+      "opportunityTitle": "Practicante de QA y Automatización",
+      "companyName": "Nébula Digital",
+      "opportunityStatus": "closed",
+      "date": "2026-09-26",
+      "status": "EN_REVISION"
+    },
+    {
+      "id": "app-4",
+      "opportunityId": "op-1",
+      "studentId": "student-2",
+      "opportunityTitle": "Practicante de Desarrollo Frontend",
+      "companyName": "Nébula Digital",
+      "opportunityStatus": "open",
+      "date": "2026-10-02",
+      "status": "EN_REVISION"
+    },
+    {
+      "id": "app-5",
+      "opportunityId": "op-1",
+      "studentId": "student-3",
+      "opportunityTitle": "Practicante de Desarrollo Frontend",
+      "companyName": "Nébula Digital",
+      "opportunityStatus": "open",
+      "date": "2026-09-30",
+      "status": "RECHAZADA"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "student-1",
+      "applicationId": "app-3",
+      "name": "Mariana López",
+      "career": "Ingeniería en Software",
+      "date": "2026-10-05",
+      "cvName": "CV_Mariana_Lopez.pdf",
+      "cvUrl": "/demo-cv.pdf",
+      "initials": "ML",
+      "email": "mariana.lopez@uas.edu",
+      "phone": "668 123 4567",
+      "bio": "Estudiante interesada en desarrollo frontend y productos digitales."
+    },
+    {
+      "id": "student-2",
+      "applicationId": "app-4",
+      "name": "Carlos Mendoza",
+      "career": "Ingeniería Informática",
+      "date": "2026-10-02",
+      "cvName": "CV_Carlos_Mendoza.pdf",
+      "cvUrl": "/demo-cv.pdf",
+      "initials": "CM",
+      "email": "carlos.mendoza@uas.edu",
+      "phone": "668 234 5678",
+      "bio": "Interesado en aseguramiento de calidad y automatización."
+    },
+    {
+      "id": "student-3",
+      "applicationId": "app-5",
+      "name": "Ana Sofía Ruiz",
+      "career": "Diseño Gráfico",
+      "date": "2026-09-30",
+      "cvName": "CV_Ana_Ruiz.pdf",
+      "cvUrl": "/demo-cv.pdf",
+      "initials": "AR",
+      "email": "ana.ruiz@uas.edu",
+      "phone": "668 345 6789",
+      "bio": "Diseñadora enfocada en experiencias digitales accesibles."
+    }
+  ]
+}
