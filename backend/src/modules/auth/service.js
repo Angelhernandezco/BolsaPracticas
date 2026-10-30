@@ -1,3 +1,4 @@
+import { selectCareers } from '../careers/service.js';
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { AppError, invalid } from "../../lib/errors.js"
@@ -26,7 +27,9 @@ export function createAuthService(ctx) {
           : null
       if (data.role === "student" && !career)
         throw invalid("Selecciona una carrera válida.")
-      return prisma.user.create({
+      return prisma.$transaction(async tx => {
+        if(career) await selectCareers(tx,{ids:[career.id]});
+        return tx.user.create({
         data: {
           name: data.name,
           email: data.email,
@@ -56,7 +59,8 @@ export function createAuthService(ctx) {
               }),
         },
         include: userInclude,
-      })
+      });
+      });
     },
     async login(input) {
       const data = loginSchema.parse(input)

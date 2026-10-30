@@ -21,10 +21,11 @@ export async function seed(prisma, env = {}) {
       create: { id, name },
       update: {},
     })
-  for (const name of careers)
+  const keys=["software","informatica","civil","industrial","diseno","administracion","contaduria","mercadotecnia"];
+  for (const [index,name] of careers.entries())
     await prisma.career.upsert({
-      where: { name },
-      create: { name },
+      where: { seedKey: keys[index] },
+      create: { name, seedKey: keys[index] },
       update: {},
     })
   if (env.ADMIN_EMAIL && env.ADMIN_PASSWORD) {

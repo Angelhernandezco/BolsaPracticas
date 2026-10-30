@@ -1,3 +1,4 @@
+import { selectCareers } from '../careers/service.js';
 import { z } from "zod"
 import { invalid, forbidden, notFound } from "../../lib/errors.js"
 import {
@@ -16,6 +17,7 @@ const schema = z.object({
   contactEmail: optionalText(150),
   contactPhone: z.string().max(30).nullish(),
   careerIds: z.array(z.string().max(120)).max(50).optional(),
+  careerRecordIds: z.array(z.string().regex(/^[1-9]\d*$/)).max(50).optional(),
   closingDate: optionalText(10),
   intent: z.enum(["draft", "publish", "save"]).default("publish"),
 })
@@ -85,12 +87,11 @@ export function opportunitiesService({ prisma, clock }) {
           ...(previous ? serializeOpportunity(previous, clock()) : {}),
           ...data,
         }
-        const careerNames = [...new Set(merged.careerIds)],
-          careers = await tx.career.findMany({
-            where: { name: { in: careerNames } },
-          })
-        if (careers.length !== careerNames.length)
-          throw invalid("Selecciona carreras válidas.")
+        const careers=await selectCareers(tx,{
+          ids:data.careerRecordIds ?? (data.careerIds === undefined && previous ? previous.careers.map(row=>row.careerId) : undefined),
+          names:merged.careerIds,
+          existingIds:previous?.careers.map(row=>row.careerId) || []
+        });
         const closingDate = merged.closingDate
           ? parseCalendarDate(merged.closingDate)
           : null

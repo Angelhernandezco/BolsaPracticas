@@ -18,6 +18,8 @@ export function serializeUser(u) {
     ...(s
       ? {
           career: s.career.name,
+          careerId: String(s.careerId),
+          careerActive: s.career.active,
           matricula: s.matricula,
           university: s.university,
           phone: s.phone,

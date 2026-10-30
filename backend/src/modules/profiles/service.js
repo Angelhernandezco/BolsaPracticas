@@ -1,3 +1,4 @@
+import { selectCareers } from '../careers/service.js';
 import { z } from "zod"
 import { emailSchema } from "../auth/schemas.js"
 import { invalid } from "../../lib/errors.js"
@@ -10,7 +11,8 @@ const base = {
 const student = z.object({
   ...base,
   matricula: z.string().trim().min(1).max(20),
-  career: z.string().min(1),
+  career: z.string().min(1).optional(),
+  careerId: z.string().regex(/^[1-9]\d*$/).optional(),
 })
 const company = z.object({
   ...base,
@@ -29,10 +31,9 @@ export function profileService({ prisma }) {
       const data = (user.roleId === 1 ? student : company).parse(input)
       await prisma.$transaction(async (tx) => {
         if (user.roleId === 1) {
-          const career = await tx.career.findUnique({
-            where: { name: data.career },
-          })
-          if (!career) throw invalid("Selecciona una carrera válida.")
+          const current=await tx.student.findUniqueOrThrow({where:{userId:user.id}});
+          const [career]=await selectCareers(tx,{ids:data.careerId?[data.careerId]:undefined,names:data.career?[data.career]:[],existingIds:[current.careerId]});
+          if(!career) throw invalid('Selecciona una carrera válida.');
           await tx.student.update({
             where: { userId: user.id },
             data: {

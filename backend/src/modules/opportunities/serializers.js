@@ -19,6 +19,7 @@ export function serializeOpportunity(o, now) {
     contactEmail: o.contactEmail,
     contactPhone: o.contactPhone,
     careerIds: o.careers.map((c) => c.career.name),
+    careerAssociations: o.careers.map(({career})=>({id:String(career.id),name:career.name,active:career.active})),
     closingDate: o.closingDate?.toISOString().slice(0, 10) || "",
     timezone: "America/Mazatlan",
     status: effectiveStatus(o, now),

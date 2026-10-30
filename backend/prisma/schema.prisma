@@ -32,6 +32,8 @@ model User {
 }
 model Career {
   id Int @id @default(autoincrement()) @map("id_carrera")
+  active Boolean @default(true) @map("activo")
+  seedKey String? @unique @map("clave_semilla")
   name String @unique(map: "uk_carrera_nombre") @map("nombre") @db.VarChar(120)
   students Student[]
   opportunities OpportunityCareer[]

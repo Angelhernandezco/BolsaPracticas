@@ -14,6 +14,7 @@ import { opportunitiesRoutes } from "./modules/opportunities/routes.js"
 import { applicationsRoutes } from "./modules/applications/routes.js"
 import path from "node:path"
 import { backendRoot } from "./config.js"
+import { careersRoutes } from "./modules/careers/routes.js"
 export function createApp({
   prisma,
   config = {},
@@ -40,6 +41,7 @@ export function createApp({
   })
   app.use("/api/auth", authRoutes(ctx))
   app.use("/api/catalogs", catalogRoutes(ctx))
+  app.use("/api/admin/careers", careersRoutes(ctx))
   app.use("/api", profileRoutes(ctx))
   app.use("/api", filesRoutes(ctx))
   app.use("/api/admin", adminRoutes(ctx))
