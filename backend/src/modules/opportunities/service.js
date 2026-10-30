@@ -65,6 +65,14 @@ export function opportunitiesService({ prisma, clock }) {
       return prisma.$transaction(async (tx) => {
         const previous = id ? await lockOpportunity(tx, id) : null
         if (previous) checkOwner(previous, user)
+        if (
+          previous &&
+          previous.status !== "BORRADOR" &&
+          data.intent === "draft"
+        )
+          throw invalid(
+            "Una convocatoria publicada no puede volver a borrador.",
+          )
         const merged = {
           description: "",
           area: "",

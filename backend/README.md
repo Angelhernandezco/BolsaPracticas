@@ -47,7 +47,7 @@ Para conservar funcionales los botones de demostración existentes en Figma, hay
 npm --prefix backend run db:seed:demo
 ```
 
-Crea las cuentas que muestra la pantalla de acceso, con la contraseña de demostración visible allí, un CV de ejemplo y convocatorias abierta/cerrada/borrador. No envía correos y no sobrescribe cuentas existentes. **No habilites esta semilla en producción**; las cuentas verificadas son datos de demostración explícitos. El administrador privado de `.env` es independiente del administrador demo.
+Crea las cuentas que muestra la pantalla de acceso, con la contraseña de demostración visible allí, un CV de ejemplo y convocatorias abierta/cerrada/borrador. No envía correos. Si ya existe cualquiera de los correos reservados, omite la semilla completa sin modificar perfiles, CV ni relaciones; repetirla conserva lo existente. **No habilites esta semilla en producción**; las cuentas verificadas son datos de demostración explícitos. El administrador privado de `.env` es independiente del administrador demo.
 
 ## Correo y sesiones
 

@@ -115,3 +115,23 @@ test("profile_states_are_enforced", async () => {
   })
   await s.company.get("/api/opportunities?all=true").expect(403)
 })
+test("published_opportunity_cannot_return_to_draft_or_hide_history", async () => {
+  const s = await fixtures()
+  await s.student
+    .post("/api/applications")
+    .send({ opportunityId: s.o.id })
+    .expect(201)
+  await s.company
+    .put(`/api/company/opportunities/${s.o.id}`)
+    .send({ title: "Intento de borrador", intent: "draft" })
+    .expect(422)
+  await s.student.get(`/api/opportunities/${s.o.id}`).expect(200)
+  const history = await s.student.get("/api/applications/me").expect(200)
+  assert.equal(history.body[0].opportunityStatus, "open")
+  await s.company.post(`/api/company/opportunities/${s.o.id}/close`).expect(200)
+  await s.company
+    .put(`/api/company/opportunities/${s.o.id}`)
+    .send({ title: "Otro intento", intent: "draft" })
+    .expect(422)
+  await s.student.get(`/api/opportunities/${s.o.id}`).expect(200)
+})
