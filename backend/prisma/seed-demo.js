@@ -110,7 +110,8 @@ try {
 
                       approvalStatus,
 
-                      hasUasAgreement: index === 2,
+                      agreementStartDate: index === 2 ? new Date("2026-01-01") : null,
+                      agreementEndDate: index === 2 ? new Date("2027-12-31") : null,
 
                       rejectionReason:
                         approvalStatus === "rejected"

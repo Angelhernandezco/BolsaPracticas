@@ -72,7 +72,9 @@ model Company {
   phone String? @map("telefono") @db.VarChar(30)
   address String? @map("direccion") @db.VarChar(255)
   contact String? @map("correo_contacto") @db.VarChar(150)
-  hasUasAgreement Boolean @default(false) @map("tiene_convenio")
+  agreementStartDate DateTime? @map("fecha_inicio_convenio") @db.Date
+  agreementEndDate DateTime? @map("fecha_fin_convenio") @db.Date
+  approvalNotification ApprovalNotification?
   legacyLogoKey String? @map("logo_s3_key") @db.VarChar(255)
   logoId String? @map("id_logo")
   approvalStatus String @default("pending") @map("estado_aprobacion") @db.VarChar(10)
@@ -168,4 +170,18 @@ model Verification {
   user User @relation(fields: [userId], references: [id])
   @@index([userId])
   @@map("verificacion_email")
+}
+model ApprovalNotification {
+  id String @id @default(uuid()) @map("id_notificacion")
+  companyId Int @unique @map("id_empresa")
+  recipient String @map("destinatario") @db.VarChar(150)
+  agreementStartDate DateTime? @map("fecha_inicio_convenio") @db.Date
+  agreementEndDate DateTime? @map("fecha_fin_convenio") @db.Date
+  status String @default("pending") @map("estado") @db.VarChar(10)
+  createdAt DateTime @default(now()) @map("creado_en") @db.Timestamptz
+  sentAt DateTime? @map("enviado_en") @db.Timestamptz
+  claimToken String? @map("claim_token")
+  leaseUntil DateTime? @map("lease_hasta") @db.Timestamptz
+  company Company @relation(fields:[companyId], references:[id])
+  @@map("notificacion_aprobacion")
 }

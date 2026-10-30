@@ -105,11 +105,11 @@ test("agreement_is_current_and_expired_can_be_edited_before_reactivation", async
     .expect(201)
   await prisma.company.update({
     where: { id: c.company.id },
-    data: { hasUasAgreement: true },
+    data: { agreementStartDate:new Date("2026-01-01"), agreementEndDate:new Date("2026-12-31") },
   })
   assert.equal(
-    (await a.get(`/api/opportunities/${r.body.id}`)).body.hasUasAgreement,
-    true,
+    (await a.get(`/api/opportunities/${r.body.id}`)).body.agreementStartDate,
+    "2026-01-01",
   )
   s.setTime("2026-10-30T08:00:00Z")
   await login(a, c)

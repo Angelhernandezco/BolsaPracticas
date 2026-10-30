@@ -13,19 +13,19 @@ test("agreement_is_independent_from_approval", async () => {
   })
   const changed = await a
     .patch(`/api/admin/companies/${c.id}/uas-agreement`)
-    .send({ hasUasAgreement: true })
+    .send({ agreementStartDate:"2026-10-01", agreementEndDate:"2026-11-01" })
     .expect(200)
-  assert.equal(changed.body.hasUasAgreement, true)
+  assert.equal(changed.body.agreementStartDate, "2026-10-01")
   assert.equal(changed.body.approvalStatus, "pending")
   await a
     .patch(`/api/admin/companies/${c.id}/uas-agreement`)
-    .send({ hasUasAgreement: false })
+    .send({ agreementStartDate:null, agreementEndDate:null })
     .expect(200)
   const approved = await a
     .post(`/api/admin/companies/${c.id}/decision`)
     .send({ decision: "approved", reason: "" })
     .expect(200)
-  assert.equal(approved.body.hasUasAgreement, false)
+  assert.equal(approved.body.agreementStartDate, null)
   assert.equal(approved.body.resolvedBy, admin.name)
 })
 test("only_admin_resolves_verified_pending_companies", async () => {

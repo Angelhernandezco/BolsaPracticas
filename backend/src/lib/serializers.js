@@ -1,7 +1,7 @@
 export const userInclude = {
   role: true,
   student: { include: { career: true, cv: true, photo: true } },
-  company: { include: { logo: true, resolver: { select: { name: true } } } },
+  company: { include: { logo: true, approvalNotification:true, resolver: { select: { name: true } } } },
 }
 export const roleName = (id) => ({ 1: "student", 2: "company", 3: "admin" })[id]
 export const fileUrl = (id) => (id ? `/api/files/${id}` : undefined)
@@ -39,7 +39,8 @@ export function serializeUser(u) {
           bio: c.bio,
           giro: c.giro,
           address: c.address,
-          hasUasAgreement: c.hasUasAgreement,
+          agreementStartDate: c.agreementStartDate?.toISOString().slice(0,10) || null,
+          agreementEndDate: c.agreementEndDate?.toISOString().slice(0,10) || null,
           approvalStatus: c.approvalStatus,
           rejectionReason: c.rejectionReason,
           resolvedAt: c.resolvedAt?.toISOString(),

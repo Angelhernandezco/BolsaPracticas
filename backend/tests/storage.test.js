@@ -81,7 +81,7 @@ test("profile_cannot_change_privileges", async () => {
       approvalStatus: "rejected",
     })
     .expect(200)
-  assert.equal(res.body.hasUasAgreement, false)
+  assert.equal(res.body.agreementStartDate, null)
   assert.equal(res.body.role, "company")
   assert.equal(res.body.approvalStatus, "approved")
   assert.equal(res.body.emailVerified, true)

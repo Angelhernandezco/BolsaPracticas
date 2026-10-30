@@ -29,6 +29,7 @@ export function serializeOpportunity(o, now) {
       .map((w) => w[0])
       .join("")
       .slice(0, 2),
-    hasUasAgreement: o.company.hasUasAgreement,
+    agreementStartDate: o.company.agreementStartDate?.toISOString().slice(0,10) || null,
+    agreementEndDate: o.company.agreementEndDate?.toISOString().slice(0,10) || null,
   }
 }
