@@ -1,6 +1,6 @@
 # Carreras administrativas, convenios por fechas y separación del frontend
 
-Fecha: 2026-10-29. Estado: pendiente de aprobación del diseño completo.
+Fecha: 2026-10-29. Estado: aprobado por el usuario, incluidos renombrado, reactivación y unicidad de carreras.
 
 ## Propósito y restricciones
 
@@ -17,12 +17,13 @@ La primera propuesta calculaba vigencia con fecha Mazatlán. El usuario la corri
 ## Carreras
 
 - Agregar activo BOOLEAN NOT NULL DEFAULT true a carrera. Las etiquetas visibles serán Activo/Inactivo.
-- Nueva ruta /admin/carreras y enlace en el menú administrativo, con componentes de tabla, tarjetas, búsqueda, filtros, avisos y modales existentes. Tabla: nombre, estado y acción para desactivar; formulario para crear una carrera activa. Solo rol admin puede administrar carreras.
-- No añadir eliminación, cambio de nombre ni reactivación en esta entrega: el alcance confirmado es crear y desactivar. Un nombre ya existente, incluso inactivo, no se duplica. Comparar nombres normalizados para evitar duplicados por espacios exteriores o mayúsculas; no fusionar silenciosamente registros previos.
+- Nueva ruta /admin/carreras y enlace en el menú administrativo, con componentes de tabla, tarjetas, búsqueda, filtros, avisos y modales existentes. Tabla: nombre, estado y acciones para editar nombre y activar/desactivar según el estado actual; formulario para crear una carrera activa. Solo rol admin puede administrar carreras.
+- Permitir crear, cambiar de nombre, desactivar y reactivar carreras. No añadir eliminación. Los nombres deben ser únicos entre todas las carreras, activas o inactivas: comparar nombres normalizados para evitar duplicados por espacios exteriores o mayúsculas y garantizar la unicidad también en la base de datos. Al editar, excluir la propia carrera de la comprobación de duplicados; no fusionar silenciosamente registros previos.
+- Renombrar actualiza la misma carrera conservando su identificador y todas las asociaciones de estudiantes y convocatorias; las consultas posteriores muestran el nombre nuevo. Reactivar vuelve a ofrecerla para nuevas selecciones sin recrear ni alterar sus relaciones.
 - El catálogo para nuevas elecciones solo ofrece carreras activas. El backend también rechaza carreras inactivas en registros o nuevas asociaciones de convocatorias, aunque el cliente manipule la petición.
 - Una carrera desactivada conserva usuarios, convocatorias, postulaciones y sus relaciones. El estudiante que ya la tiene puede conservarla al guardar otros datos; no puede asignarse una carrera inactiva diferente. Una convocatoria existente puede conservar carreras inactivas que ya tenía; nuevas convocatorias no pueden incorporarlas.
 - Los formularios de edición muestran sus carreras actuales inactivas claramente identificadas, sin obligar a perderlas. La desactivación no cierra convocatorias ni bloquea acceso de estudiantes existentes.
-- La semilla idempotente no reactiva carreras que el administrador haya desactivado.
+- La semilla idempotente no reactiva carreras que el administrador haya desactivado, no revierte sus nombres editados ni recrea el nombre anterior como otra carrera. Usar identificadores estables para reconocer las carreras sembradas.
 
 ## Convenios: datos y validación
 
@@ -55,7 +56,7 @@ La primera propuesta calculaba vigencia con fecha Mazatlán. El usuario la corri
 
 ## Migraciones y compatibilidad
 
-- Migración versionada agrega carrera.activo y fechas empresariales con restricción de pareja/orden; elimina el boolean empresarial y amplía serializadores. Agrega persistencia mínima de la notificación de aprobación (registro con estado, destinatario y fecha de envío).
+- Migración versionada agrega carrera.activo y unicidad de nombre normalizado, y fechas empresariales con restricción de pareja/orden; elimina el boolean empresarial y amplía serializadores. Agrega persistencia mínima de la notificación de aprobación (registro con estado, destinatario y fecha de envío). Si existen nombres que colisionan al normalizarlos, informar antes de aplicar la restricción, sin renombrar ni fusionar datos automáticamente.
 - No inventar periodos para convenios existentes que solo tienen true/false. Al migrar quedarán sin fechas y se verán como Sin convenio hasta que admin capture el periodo. Esta es una consecuencia de eliminar el indicador antiguo sin contar con fechas históricas.
 - Inspeccionar estructura antes de aplicar; conservar usuarios, expedientes, CV, solicitudes y convocatorias. No reset, DROP TABLE de negocio ni limpieza masiva.
 - Mantener rutas de negocio actuales. La ruta administrativa de actualización de convenio puede conservar /admin/companies/:id/uas-agreement cambiando su payload a la pareja de fechas solicitada. Añadir rutas de carreras y reintento de notificación; no usar campos de privilegio en PUT genérico de perfiles.
@@ -80,7 +81,7 @@ La primera propuesta calculaba vigencia con fecha Mazatlán. El usuario la corri
 
 ## Verificación de aceptación
 
-- Carreras: creación/duplicados, solo admin, activas en catálogo, rechazo de nuevas asociaciones inactivas y conservación de las antiguas; semilla no reactiva.
+- Carreras: creación, edición de nombre y unicidad entre activas/inactivas, incluidos espacios exteriores, mayúsculas y peticiones concurrentes; guardar el propio nombre sin cambio no produce falso duplicado. Solo admin; catálogo actualizado tras renombrar/reactivar, rechazo de nuevas asociaciones inactivas y conservación de relaciones por ID al renombrar/desactivar/reactivar. La semilla no reactiva, no revierte nombres ni recrea carreras renombradas.
 - Convenios: null/null, pareja incompleta rechazada, fechas inválidas/invertidas, límites inclusivos, año bisiesto, estados activo/vencido/futuro/ausente y diferencia entre fecha local de navegador y Mazatlán. Estado visible se actualiza al cambiar de día/foco sin persistirlo.
 - Administración: tres columnas, edición sin checkbox, ficha opcional, aprobación con fechas transaccionales, permisos de empresa solo lectura, rechazo sin correo.
 - Correo: cuatro estados de convenio, fechas y destinatario correctos, una notificación por resolución, fallo SMTP conserva aprobación y permite reintento controlado.
