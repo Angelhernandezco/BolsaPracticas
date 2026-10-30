@@ -12,6 +12,7 @@ export function errorHandler(error,_req,res,_next) {
   if(error.code==='P2025') error=notFound();
   if(error.code==='LIMIT_FILE_SIZE' || error.type==='entity.too.large') return res.status(413).json({code:'FILE_SIZE',message:'El archivo excede el tamaño permitido.'});
   if(error.type==='entity.parse.failed') return res.status(400).json({code:'BAD_JSON',message:'La solicitud no contiene JSON válido.'});
+  if(error.retryAfter) res.set('Retry-After',String(error.retryAfter));
   if(error.status) return res.status(error.status).json({code:error.code || 'ERROR',message:error.message});
   console.error('Error de servidor:', error.code || error.name || 'Error');
   res.status(500).json({code:'INTERNAL',message:'No pudimos completar la operación. Inténtalo nuevamente.'});
