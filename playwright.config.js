@@ -14,6 +14,13 @@ export default defineConfig({
   },
   webServer: [
     {
+      command: "npm --prefix frontend run dev -- --port 8445",
+      url: "http://localhost:8445",
+      env: { PORT: "8445", VITE_USE_MOCKS: "true" },
+      reuseExistingServer: false,
+      timeout: 30000,
+    },
+    {
       command: "node --env-file=backend/.env.test backend/tests/e2e-server.js",
       url: "http://127.0.0.1:3002/api/health",
       reuseExistingServer: false,
