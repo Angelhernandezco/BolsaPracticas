@@ -1,25 +1,27 @@
-import { after } from "node:test"
-import { PrismaClient } from "@prisma/client"
-import request from "supertest"
-import bcrypt from "bcrypt"
-import { randomUUID } from "node:crypto"
-import { loadConfig, assertTestDatabase } from "../src/config.js"
-import { createApp } from "../src/app.js"
-import { seed } from "../prisma/seed.js"
+import { after } from 'node:test'
+import { PrismaClient } from '@prisma/client'
+import request from 'supertest'
+import bcrypt from 'bcrypt'
+import { randomUUID } from 'node:crypto'
+import { loadConfig, assertTestDatabase } from '../src/config.js'
+import { createApp } from '../src/app.js'
+import { seed } from '../prisma/seed.js'
 assertTestDatabase(
   process.env.DATABASE_URL,
-  "postgresql://localhost/bolsa_practicas",
+  'postgresql://localhost/bolsa_practicas',
 )
 export const prisma = new PrismaClient()
 await seed(prisma)
 after(() => prisma.$disconnect())
-export const password = "TestPassword123!"
+export const password = 'TestPassword123!'
 export function setup() {
-  let now = new Date("2026-10-29T20:00:00Z")
+  let now = new Date('2026-10-29T20:00:00Z')
   const outbox = []
   const config = loadConfig(process.env)
   const mailer = {
-    async sendCompanyApproval(message) { outbox.push({...message,type:'approval'}); },
+    async sendCompanyApproval(message) {
+      outbox.push({ ...message, type: 'approval' })
+    },
     async sendVerification(message) {
       outbox.push(message)
     },
@@ -36,22 +38,22 @@ export function setup() {
     agent: () => request.agent(app),
   }
 }
-export function registration(role = "student", extra = {}) {
-  const suffix = randomUUID().replaceAll("-", "").slice(0, 10)
+export function registration(role = 'student', extra = {}) {
+  const suffix = randomUUID().replaceAll('-', '').slice(0, 10)
   return {
     role,
-    name: role === "student" ? "Estudiante Prueba" : "Empresa Prueba",
+    name: role === 'student' ? 'Estudiante Prueba' : 'Empresa Prueba',
     email: `test-${suffix}@uas.edu`,
     password,
     matricula: suffix,
-    career: "Ingeniería en Software",
-    rfc: `TST${String(parseInt(suffix.slice(0, 6), 16) % 1000000).padStart(6, "0")}${suffix.slice(-3).toUpperCase()}`,
-    giro: "Tecnología",
-    address: "Calle de pruebas 123",
+    career: 'Ingeniería en Software',
+    rfc: `TST${String(parseInt(suffix.slice(0, 6), 16) % 1000000).padStart(6, '0')}${suffix.slice(-3).toUpperCase()}`,
+    giro: 'Tecnología',
+    address: 'Calle de pruebas 123',
     ...extra,
   }
 }
-export async function account(role = "student", extra = {}) {
+export async function account(role = 'student', extra = {}) {
   const input = registration(role, extra)
   const career = await prisma.career.findUniqueOrThrow({
     where: { name: input.career },
@@ -60,10 +62,10 @@ export async function account(role = "student", extra = {}) {
     data: {
       email: input.email,
       name: input.name,
-      roleId: role === "student" ? 1 : role === "company" ? 2 : 3,
+      roleId: role === 'student' ? 1 : role === 'company' ? 2 : 3,
       emailVerified: true,
       passwordHash: await bcrypt.hash(password, 4),
-      ...(role === "student"
+      ...(role === 'student'
         ? {
             student: {
               create: {
@@ -73,7 +75,7 @@ export async function account(role = "student", extra = {}) {
               },
             },
           }
-        : role === "company"
+        : role === 'company'
           ? {
               company: {
                 create: {
@@ -81,7 +83,7 @@ export async function account(role = "student", extra = {}) {
                   rfc: input.rfc,
                   giro: input.giro,
                   address: input.address,
-                  approvalStatus: "approved",
+                  approvalStatus: 'approved',
                 },
               },
             }
@@ -93,7 +95,7 @@ export async function account(role = "student", extra = {}) {
 }
 export async function login(agent, user) {
   const response = await agent
-    .post("/api/auth/login")
+    .post('/api/auth/login')
     .send({ email: user.email, password })
   if (response.status !== 200)
     throw new Error(

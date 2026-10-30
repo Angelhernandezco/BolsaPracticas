@@ -1,18 +1,18 @@
-import jwt from "jsonwebtoken"
-import { AppError, forbidden } from "../lib/errors.js"
-import { userInclude } from "../lib/serializers.js"
+import jwt from 'jsonwebtoken'
+import { AppError, forbidden } from '../lib/errors.js'
+import { userInclude } from '../lib/serializers.js'
 export function authMiddleware({ prisma, config, clock }) {
   return async (req, _res, next) => {
     const expired = () =>
       new AppError(
         401,
-        "SESSION_EXPIRED",
-        "Tu sesión expiró. Inicia sesión nuevamente.",
+        'SESSION_EXPIRED',
+        'Tu sesión expiró. Inicia sesión nuevamente.',
       )
     let payload
     try {
-      payload = jwt.verify(req.cookies?.["bolsa-token"], config.jwtSecret, {
-        algorithms: ["HS256"],
+      payload = jwt.verify(req.cookies?.['bolsa-token'], config.jwtSecret, {
+        algorithms: ['HS256'],
         clockTimestamp: Math.floor(clock().getTime() / 1000),
       })
     } catch {
@@ -48,13 +48,13 @@ export function requireVerified(req, _res, next) {
     : next(
         new AppError(
           403,
-          "EMAIL_UNVERIFIED",
-          "Verifica tu correo para continuar.",
+          'EMAIL_UNVERIFIED',
+          'Verifica tu correo para continuar.',
         ),
       )
 }
 export function requireApprovedCompany(req, _res, next) {
-  req.user.roleId === 2 && req.user.company?.approvalStatus === "approved"
+  req.user.roleId === 2 && req.user.company?.approvalStatus === 'approved'
     ? next()
     : next(forbidden())
 }

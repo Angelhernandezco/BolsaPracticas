@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client"
-import { readFile } from "node:fs/promises"
-import { fileURLToPath } from "node:url"
-import { loadSeedData } from "../prisma/seed-data.js"
-import { loadConfig } from "../src/config.js"
-import { createStorage } from "../src/services/storage/index.js"
+import { PrismaClient } from '@prisma/client'
+import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
+import { loadSeedData } from '../prisma/seed-data.js'
+import { loadConfig } from '../src/config.js'
+import { createStorage } from '../src/services/storage/index.js'
 
 export async function prepareDemoAssets(
   prisma,
@@ -11,7 +11,7 @@ export async function prepareDemoAssets(
   manifest = loadSeedData(),
 ) {
   const buffer = await readFile(
-    new URL("../../frontend/public/demo-cv.pdf", import.meta.url),
+    new URL('../../frontend/public/demo-cv.pdf', import.meta.url),
   )
   let created = 0
   // Only fixed demo keys and their declared owner qualify. No user uploads.
@@ -19,16 +19,16 @@ export async function prepareDemoAssets(
     const file = await prisma.storedFile.findFirst({
       where: {
         key: user.fileKey,
-        driver: "local",
+        driver: 'local',
         owner: { email: user.email },
       },
     })
     if (!file) continue
     try {
-      await storage.put({ key: file.key, driver: "local", buffer })
+      await storage.put({ key: file.key, driver: 'local', buffer })
       created++
     } catch (error) {
-      if (error.code !== "EEXIST") throw error
+      if (error.code !== 'EEXIST') throw error
     }
   }
   return { created }

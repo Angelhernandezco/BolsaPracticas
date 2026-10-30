@@ -3,14 +3,14 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-} from "@aws-sdk/client-s3"
+} from '@aws-sdk/client-s3'
 export function s3Storage(
   config,
   client = new S3Client({ region: config.awsRegion }),
 ) {
   function input(key) {
     if (!config.s3Bucket || !config.awsRegion)
-      throw new Error("Configura S3_BUCKET y AWS_REGION.")
+      throw new Error('Configura S3_BUCKET y AWS_REGION.')
     return { Bucket: config.s3Bucket, Key: key }
   }
   return {

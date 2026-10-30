@@ -1,21 +1,23 @@
-import type { ReactNode } from "react"
-import { Avatar, Badge, Title } from "./ui"
-import { AgreementSummary } from "./AgreementBadge"
-import { agreementDates } from "../lib/agreements"
-import type { CompanyReview } from "../types"
+import type { ReactNode } from 'react'
+import { Avatar, Badge, Title } from './ui'
+import { AgreementSummary } from './AgreementBadge'
+import { agreementDates } from '../lib/agreements'
+import type { CompanyReview } from '../types'
 
 export const approvalMeta = {
-  pending: { label: "Pendiente", tone: "warning" },
-  approved: { label: "Aprobada", tone: "success" },
-  rejected: { label: "Rechazada", tone: "danger" },
+  pending: { label: 'Pendiente', tone: 'warning' },
+  approved: { label: 'Aprobada', tone: 'success' },
+  rejected: { label: 'Rechazada', tone: 'danger' },
 } as const
 
 export default function CompanyDetails({
   company,
   agreementControl,
+  showOpportunityCount = true,
 }: {
   company: CompanyReview
   agreementControl?: ReactNode
+  showOpportunityCount?: boolean
 }) {
   return (
     <div className="admin-company-detail">
@@ -24,16 +26,16 @@ export default function CompanyDetails({
           size="large"
           src={company.logo}
           initials={company.name
-            .split(" ")
+            .split(' ')
             .map((word) => word[0])
-            .join("")
+            .join('')
             .slice(0, 2)}
         />
         <div>
           <Title as="h2">{company.name}</Title>
           <p>{company.giro}</p>
-          <Badge tone={approvalMeta[company.approvalStatus || "pending"].tone}>
-            {approvalMeta[company.approvalStatus || "pending"].label}
+          <Badge tone={approvalMeta[company.approvalStatus || 'pending'].tone}>
+            {approvalMeta[company.approvalStatus || 'pending'].label}
           </Badge>
         </div>
       </div>
@@ -48,7 +50,7 @@ export default function CompanyDetails({
         </div>
         <div>
           <span>Teléfono</span>
-          <strong>{company.phone || "No registrado"}</strong>
+          <strong>{company.phone || 'No registrado'}</strong>
         </div>
         <div>
           <span>Dirección</span>
@@ -56,18 +58,20 @@ export default function CompanyDetails({
         </div>
         <div>
           <span>Correo verificado</span>
-          <strong>{company.emailVerified ? "Sí" : "No"}</strong>
+          <strong>{company.emailVerified ? 'Sí' : 'No'}</strong>
         </div>
         <div>
           <span>Fecha de registro</span>
           <strong>
-            {new Date(company.registeredAt).toLocaleDateString("es-MX")}
+            {new Date(company.registeredAt).toLocaleDateString('es-MX')}
           </strong>
         </div>
-        <div>
-          <span>Total de convocatorias</span>
-          <strong>{company.opportunityCount}</strong>
-        </div>
+        {showOpportunityCount && (
+          <div>
+            <span>Total de convocatorias</span>
+            <strong>{company.opportunityCount}</strong>
+          </div>
+        )}
       </div>
       {agreementControl || <AgreementSummary dates={agreementDates(company)} />}
       {company.bio && (

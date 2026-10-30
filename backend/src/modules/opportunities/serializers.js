@@ -1,4 +1,5 @@
-import { effectiveStatus } from "../../lib/dates.js"
+import { effectiveStatus } from '../../lib/dates.js'
+import { fileUrl } from '../../lib/serializers.js'
 export const opportunityInclude = {
   company: { include: { user: true } },
   careers: { include: { career: true } },
@@ -9,27 +10,34 @@ export function serializeOpportunity(o, now) {
     id: String(o.id),
     companyId: String(o.company.userId),
     company: o.company.name,
+    companyLogo: fileUrl(o.company.logoId),
     title: o.title,
     description: o.description,
     area: o.area,
     slots: o.slots,
-    publishedAt: o.publishedAt?.toISOString() || "",
+    publishedAt: o.publishedAt?.toISOString() || '',
     contact: o.contactEmail,
     contactName: o.contactName,
     contactEmail: o.contactEmail,
     contactPhone: o.contactPhone,
     careerIds: o.careers.map((c) => c.career.name),
-    careerAssociations: o.careers.map(({career})=>({id:String(career.id),name:career.name,active:career.active})),
-    closingDate: o.closingDate?.toISOString().slice(0, 10) || "",
-    timezone: "America/Mazatlan",
+    careerAssociations: o.careers.map(({ career }) => ({
+      id: String(career.id),
+      name: career.name,
+      active: career.active,
+    })),
+    closingDate: o.closingDate?.toISOString().slice(0, 10) || '',
+    timezone: 'America/Mazatlan',
     status: effectiveStatus(o, now),
     applications: o._count.applications,
     initials: o.company.name
-      .split(" ")
+      .split(' ')
       .map((w) => w[0])
-      .join("")
+      .join('')
       .slice(0, 2),
-    agreementStartDate: o.company.agreementStartDate?.toISOString().slice(0,10) || null,
-    agreementEndDate: o.company.agreementEndDate?.toISOString().slice(0,10) || null,
+    agreementStartDate:
+      o.company.agreementStartDate?.toISOString().slice(0, 10) || null,
+    agreementEndDate:
+      o.company.agreementEndDate?.toISOString().slice(0, 10) || null,
   }
 }

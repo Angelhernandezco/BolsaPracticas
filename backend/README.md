@@ -38,7 +38,7 @@ En otra terminal: `npm run dev`, solo si el servidor de Vite no está ya funcion
 
 `db:seed` crea el administrador indicado por `ADMIN_EMAIL` y `ADMIN_PASSWORD` (mínimo 12 caracteres), si aún no existe. No sobrescribe contraseñas. No hay registro público de administrador.
 
-El estudiante acepta exactamente `@uas.edu` o `@uas.edu.mx`. Universidad fija UAS. Empresas verifican correo y esperan resolución administrativa. El convenio es independiente de la aprobación y solo lo modifica el administrador. El administrador no tiene acceso a CV ni a candidatos.
+El estudiante acepta exactamente `@uas.edu`, `@uas.edu.mx` o `@ms.uas.edu.mx`. Universidad fija UAS. Empresas verifican correo y esperan resolución administrativa. El convenio es independiente de la aprobación y solo lo modifica el administrador. El administrador no tiene acceso a CV ni a candidatos.
 
 Para conservar funcionales los botones de demostración existentes en Figma, hay datos de desarrollo opcionales:
 
@@ -84,7 +84,7 @@ JWT de 8 horas en cookie HttpOnly, SameSite=Lax, Secure en producción, asociado
 
 Por defecto `STORAGE_DRIVER=local`, archivos opacos en `backend/storage/`, nunca en public. Respalda tanto PostgreSQL como ese directorio. CV: PDF hasta 5.000.000 bytes; fotos/logos: JPG/PNG hasta 2.000.000 bytes, comprobando firma del contenido. No se aceptan URLs de archivo arbitrarias desde el cliente.
 
-El estudiante accede a su CV; la empresa aprobada solo al CV exacto asociado a una postulación recibida. Cambiar CV no reemplaza la copia enviada. Las rutas `/api/files/:id` autorizan cada lectura, admiten Range para PDF y no exponen claves o rutas físicas.
+El estudiante accede a sus archivos. Una empresa aprobada puede descargar el CV actual de los estudiantes que se hayan postulado a una de sus convocatorias, incluidas las cerradas. Al reemplazar el CV, las descargas de postulaciones anteriores utilizan el nuevo archivo; el enlace resuelve la versión actual al descargar, aunque la empresa ya tuviera abierto el listado de candidatos. Las rutas `/api/files/:id` autorizan cada lectura, admiten Range para PDF y no exponen claves o rutas físicas.
 
 Para nuevas subidas a S3:
 
@@ -117,7 +117,7 @@ npm run build
 
 Playwright levanta su propio backend en 3002 y Vite en 8444 contra esa base de pruebas, con correo capturado en `storage-test/e2e-outbox.jsonl`. Ese servidor y sus utilidades viven solo en tests; la API normal no expone tokens ni herramientas de prueba. Las pruebas agregan registros identificables a la BD de pruebas. No ejecutes sus utilidades con una BD real.
 
-Se cubren autorización, sesiones, correo, concurrencia, perfiles, CV inmutable, fechas de Mazatlán y flujos completos de los tres roles. Capturas responsive en `test-results/` (ignorado). Nunca afirmar comprobación de entrega de correo o S3 real a partir de un transporte simulado.
+Se cubren autorización, sesiones, correo, concurrencia, perfiles, CV actual en postulaciones anteriores, fechas de Mazatlán y flujos completos de los tres roles. Capturas responsive en `test-results/` (ignorado). Nunca afirmar comprobación de entrega de correo o S3 real a partir de un transporte simulado.
 
 ## Producción y límites de esta entrega
 

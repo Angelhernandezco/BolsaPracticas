@@ -26,7 +26,7 @@ This is the canonical project structure. Start with task-relevant files below. O
 - Runtime: React 19 and React DOM 19
 - Styling: Tailwind CSS v4 with the `@tailwindcss/vite` plugin
 - Build tooling: Vite 8, TypeScript 5.7, and `@vitejs/plugin-react`
-- Formatting: oxfmt
+- Formatting: Prettier; shared rules in the root `.prettierrc`. Run `npm run format` or `npm run format:check`.
 
 ## Styling
 

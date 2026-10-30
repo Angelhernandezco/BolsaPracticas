@@ -1,10 +1,10 @@
-import { readFileSync } from "node:fs"
+import { readFileSync } from 'node:fs'
 
 export function loadSeedData() {
   return JSON.parse(
     readFileSync(
-      new URL("../../fixtures/seed-data.json", import.meta.url),
-      "utf8",
+      new URL('../../fixtures/seed-data.json', import.meta.url),
+      'utf8',
     ),
   )
 }
@@ -19,9 +19,9 @@ const ref = (key) => ({ $ref: key })
 const timestamp = (date) => new Date(`${date.slice(0, 10)}T12:00:00Z`)
 const roleIds = { student: 1, company: 2, admin: 3 }
 const opportunityStates = {
-  open: "ABIERTA",
-  closed: "CERRADA",
-  draft: "BORRADOR",
+  open: 'ABIERTA',
+  closed: 'CERRADA',
+  draft: 'BORRADOR',
 }
 
 // Flat, ordered records are shared by the ORM and SQL writers. References use
@@ -33,15 +33,15 @@ export function seedRecords(
   const records = []
   const add = (model, key, data) =>
     records.push({ model, key: `${model}:${key}`, data })
-  for (const role of manifest.roles) add("Role", role.id, role)
+  for (const role of manifest.roles) add('Role', role.id, role)
   for (const career of manifest.careers)
-    add("Career", career.key, {
+    add('Career', career.key, {
       name: career.name,
       seedKey: career.key,
       active: career.active,
     })
   for (const user of manifest.users) {
-    add("User", user.id, {
+    add('User', user.id, {
       email: user.email,
       name: user.name,
       roleId: roleIds[user.role],
@@ -51,23 +51,23 @@ export function seedRecords(
     })
   }
   for (const user of manifest.users.filter((item) => item.fileKey)) {
-    add("StoredFile", user.id, {
+    add('StoredFile', user.id, {
       id: user.fileKey,
       ownerId: ref(`User:${user.id}`),
-      driver: "local",
+      driver: 'local',
       key: user.fileKey,
       name: user.cvName,
-      mime: "application/pdf",
+      mime: 'application/pdf',
       size: readFileSync(
-        new URL("../../frontend/public/demo-cv.pdf", import.meta.url),
+        new URL('../../frontend/public/demo-cv.pdf', import.meta.url),
       ).length,
-      purpose: "cv",
+      purpose: 'cv',
     })
   }
   for (const user of manifest.users) {
-    if (user.role === "student") {
+    if (user.role === 'student') {
       const career = manifest.careers.find((item) => item.name === user.career)
-      add("Student", user.id, {
+      add('Student', user.id, {
         userId: ref(`User:${user.id}`),
         careerId: ref(`Career:${career.key}`),
         name: user.name,
@@ -82,11 +82,11 @@ export function seedRecords(
           : {}),
       })
     }
-    if (user.role === "company") {
+    if (user.role === 'company') {
       const dates = user.agreementOffsets?.map(
         (offset) => new Date(`${dateOffset(referenceDate, offset)}T00:00:00Z`),
       ) || [null, null]
-      add("Company", user.id, {
+      add('Company', user.id, {
         userId: ref(`User:${user.id}`),
         name: user.name,
         rfc: user.rfc,
@@ -103,10 +103,10 @@ export function seedRecords(
     }
   }
   for (const item of manifest.opportunities) {
-    const closing = item.closingDate.startsWith("offset:")
+    const closing = item.closingDate.startsWith('offset:')
       ? dateOffset(referenceDate, Number(item.closingDate.slice(7)))
       : item.closingDate
-    add("Opportunity", item.id, {
+    add('Opportunity', item.id, {
       companyId: ref(`Company:${item.companyId}`),
       title: item.title,
       description: item.description,
@@ -121,14 +121,14 @@ export function seedRecords(
     })
     for (const name of item.careerIds) {
       const career = manifest.careers.find((row) => row.name === name)
-      add("OpportunityCareer", `${item.id}:${career.key}`, {
+      add('OpportunityCareer', `${item.id}:${career.key}`, {
         opportunityId: ref(`Opportunity:${item.id}`),
         careerId: ref(`Career:${career.key}`),
       })
     }
   }
   for (const item of manifest.applications) {
-    add("Application", item.id, {
+    add('Application', item.id, {
       opportunityId: ref(`Opportunity:${item.opportunityId}`),
       studentId: ref(`Student:${item.studentId}`),
       cvId: ref(`StoredFile:${item.studentId}`),
@@ -185,7 +185,7 @@ export async function seedDemo(
           .map((career) => [`Career:${career.seedKey}`, career.id]),
       )
       for (const record of seedRecords(manifest, options).filter(
-        (record) => !["Role", "Career"].includes(record.model),
+        (record) => !['Role', 'Career'].includes(record.model),
       )) {
         const delegate = record.model[0].toLowerCase() + record.model.slice(1)
         const result = await tx[delegate].create({

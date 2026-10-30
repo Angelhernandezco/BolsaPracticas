@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
-import { Building2, Search } from "lucide-react"
-import { useAuth } from "../../app/AuthContext"
+import { useCallback, useEffect, useState } from 'react'
+import { Building2, Search } from 'lucide-react'
+import { useAuth } from '../../app/AuthContext'
 import {
   Avatar,
   Badge,
@@ -15,15 +15,19 @@ import {
   QueryError,
   Select,
   Title,
-} from "../../components/ui"
-import CompanyDetails, { approvalMeta } from "../../components/CompanyDetails"
-import ApprovalNotification from "../../components/ApprovalNotification"
-import AgreementBadge from "../../components/AgreementBadge"
-import AgreementDatesFields from "../../components/AgreementDatesFields"
-import useLocalCalendarDate from "../../hooks/useLocalCalendarDate"
-import { agreementDates, agreementDateError } from "../../lib/agreements"
-import { api, formatCalendarDate, getErrorMessage } from "../../services/api"
-import type { AgreementDates, CompanyReview } from "../../types"
+} from '../../components/ui'
+import CompanyDetails, { approvalMeta } from '../../components/CompanyDetails'
+import ApprovalNotification from '../../components/ApprovalNotification'
+import AgreementBadge from '../../components/AgreementBadge'
+import AgreementDatesFields from '../../components/AgreementDatesFields'
+import useLocalCalendarDate from '../../hooks/useLocalCalendarDate'
+import {
+  agreementDates,
+  agreementDateError,
+  getAgreementStatus,
+} from '../../lib/agreements'
+import { api, formatCalendarDate, getErrorMessage } from '../../services/api'
+import type { AgreementDates, CompanyReview } from '../../types'
 
 export default function AdminCompaniesPage() {
   const { user } = useAuth()
@@ -33,18 +37,19 @@ export default function AdminCompaniesPage() {
   const [editing, setEditing] = useState<CompanyReview | null>(null)
   const [dates, setDates] = useState<AgreementDates>(agreementDates({}))
   const [loading, setLoading] = useState(true)
-  const [queryError, setQueryError] = useState("")
-  const [mutationError, setMutationError] = useState("")
+  const [queryError, setQueryError] = useState('')
+  const [mutationError, setMutationError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [query, setQuery] = useState("")
-  const [status, setStatus] = useState("")
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('')
+  const [agreementStatus, setAgreementStatus] = useState('')
   const load = useCallback(async () => {
     setLoading(true)
-    setQueryError("")
+    setQueryError('')
     try {
       setCompanies(await api.listCompanies())
     } catch (error) {
-      setQueryError(getErrorMessage(error, "No pudimos cargar las empresas."))
+      setQueryError(getErrorMessage(error, 'No pudimos cargar las empresas.'))
     } finally {
       setLoading(false)
     }
@@ -55,7 +60,7 @@ export default function AdminCompaniesPage() {
   function edit(company: CompanyReview) {
     setEditing(company)
     setDates(agreementDates(company))
-    setMutationError("")
+    setMutationError('')
   }
   async function save() {
     if (!editing || !user || saving) return
@@ -65,7 +70,7 @@ export default function AdminCompaniesPage() {
       return
     }
     setSaving(true)
-    setMutationError("")
+    setMutationError('')
     try {
       const updated = await api.setCompanyAgreement(editing.id, dates, user)
       setCompanies((current) =>
@@ -77,7 +82,7 @@ export default function AdminCompaniesPage() {
       setEditing(null)
     } catch (error) {
       setMutationError(
-        getErrorMessage(error, "No pudimos guardar las fechas del convenio."),
+        getErrorMessage(error, 'No pudimos guardar las fechas del convenio.'),
       )
     } finally {
       setSaving(false)
@@ -88,7 +93,9 @@ export default function AdminCompaniesPage() {
       `${company.name} ${company.rfc} ${company.email}`
         .toLowerCase()
         .includes(query.trim().toLowerCase()) &&
-      (!status || company.approvalStatus === status),
+      (!status || company.approvalStatus === status) &&
+      (!agreementStatus ||
+        getAgreementStatus(agreementDates(company), today) === agreementStatus),
   )
   return (
     <div className="dashboard-page">
@@ -102,7 +109,7 @@ export default function AdminCompaniesPage() {
           </p>
         </div>
       </div>
-      <Card className="filter-bar">
+      <Card className="filter-bar company-filters">
         <Field label="Buscar empresa">
           <div className="input-with-icon">
             <Search />
@@ -113,7 +120,7 @@ export default function AdminCompaniesPage() {
             />
           </div>
         </Field>
-        <Field label="Estado">
+        <Field label="Estado de solicitud">
           <Select
             value={status}
             onChange={(event) => setStatus(event.target.value)}
@@ -122,6 +129,18 @@ export default function AdminCompaniesPage() {
             <option value="pending">Pendientes</option>
             <option value="approved">Aprobadas</option>
             <option value="rejected">Rechazadas</option>
+          </Select>
+        </Field>
+        <Field label="Estado del convenio">
+          <Select
+            value={agreementStatus}
+            onChange={(event) => setAgreementStatus(event.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="none">Sin convenio</option>
+            <option value="active">Activo</option>
+            <option value="expired">Vencido</option>
+            <option value="upcoming">Próximo a iniciar</option>
           </Select>
         </Field>
       </Card>
@@ -134,8 +153,8 @@ export default function AdminCompaniesPage() {
           icon={<Building2 />}
           title={
             companies.length
-              ? "No encontramos coincidencias"
-              : "No hay empresas registradas"
+              ? 'No encontramos coincidencias'
+              : 'No hay empresas registradas'
           }
           text="Las empresas aparecerán aquí cuando completen su registro."
           action={
@@ -143,8 +162,9 @@ export default function AdminCompaniesPage() {
               <Button
                 variant="secondary"
                 onClick={() => {
-                  setQuery("")
-                  setStatus("")
+                  setQuery('')
+                  setStatus('')
+                  setAgreementStatus('')
                 }}
               >
                 Limpiar filtros
@@ -158,13 +178,13 @@ export default function AdminCompaniesPage() {
             <div className="table-row table-head">
               <span>Empresa</span>
               <span>Giro</span>
-              <span>Estado</span>
               <span>Inicio de convenio</span>
               <span>Fin de convenio</span>
               <span>Estado del convenio</span>
-              <span>Registro</span>
-              <span>Convocatorias</span>
               <span>Acciones</span>
+              <span>Convocatorias</span>
+              <span>Solicitud</span>
+              <span>Registro</span>
             </div>
             {filtered.map((company) => (
               <div className="table-row admin-company-row" key={company.id}>
@@ -186,23 +206,14 @@ export default function AdminCompaniesPage() {
                 </ControlButton>
                 <span>{company.giro}</span>
                 <span>
-                  <Badge
-                    tone={
-                      approvalMeta[company.approvalStatus || "pending"].tone
-                    }
-                  >
-                    {approvalMeta[company.approvalStatus || "pending"].label}
-                  </Badge>
-                </span>
-                <span>
                   {company.agreementStartDate
                     ? formatCalendarDate(company.agreementStartDate)
-                    : "—"}
+                    : '—'}
                 </span>
                 <span>
                   {company.agreementEndDate
                     ? formatCalendarDate(company.agreementEndDate)
-                    : "—"}
+                    : '—'}
                 </span>
                 <span>
                   <AgreementBadge
@@ -210,13 +221,22 @@ export default function AdminCompaniesPage() {
                     today={today}
                   />
                 </span>
-                <span>
-                  {new Date(company.registeredAt).toLocaleDateString("es-MX")}
-                </span>
-                <strong>{company.opportunityCount}</strong>
                 <Button variant="ghost" onClick={() => edit(company)}>
                   Editar convenio
                 </Button>
+                <strong>{company.opportunityCount}</strong>
+                <span>
+                  <Badge
+                    tone={
+                      approvalMeta[company.approvalStatus || 'pending'].tone
+                    }
+                  >
+                    {approvalMeta[company.approvalStatus || 'pending'].label}
+                  </Badge>
+                </span>
+                <span>
+                  {new Date(company.registeredAt).toLocaleDateString('es-MX')}
+                </span>
               </div>
             ))}
           </div>

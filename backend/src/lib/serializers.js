@@ -1,9 +1,15 @@
 export const userInclude = {
   role: true,
   student: { include: { career: true, cv: true, photo: true } },
-  company: { include: { logo: true, approvalNotification:true, resolver: { select: { name: true } } } },
+  company: {
+    include: {
+      logo: true,
+      approvalNotification: true,
+      resolver: { select: { name: true } },
+    },
+  },
 }
-export const roleName = (id) => ({ 1: "student", 2: "company", 3: "admin" })[id]
+export const roleName = (id) => ({ 1: 'student', 2: 'company', 3: 'admin' })[id]
 export const fileUrl = (id) => (id ? `/api/files/${id}` : undefined)
 export function serializeUser(u) {
   const s = u.student,
@@ -11,7 +17,7 @@ export function serializeUser(u) {
   return {
     id: String(u.id),
     role: roleName(u.roleId),
-    name: u.name || c?.name || s?.name || "",
+    name: u.name || c?.name || s?.name || '',
     email: u.email,
     emailVerified: u.emailVerified,
     registeredAt: u.registeredAt.toISOString(),
@@ -39,8 +45,10 @@ export function serializeUser(u) {
           bio: c.bio,
           giro: c.giro,
           address: c.address,
-          agreementStartDate: c.agreementStartDate?.toISOString().slice(0,10) || null,
-          agreementEndDate: c.agreementEndDate?.toISOString().slice(0,10) || null,
+          agreementStartDate:
+            c.agreementStartDate?.toISOString().slice(0, 10) || null,
+          agreementEndDate:
+            c.agreementEndDate?.toISOString().slice(0, 10) || null,
           approvalStatus: c.approvalStatus,
           rejectionReason: c.rejectionReason,
           resolvedAt: c.resolvedAt?.toISOString(),

@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto"
-import { AppError, notFound } from "../lib/errors.js"
-import { agreementStatusOn } from "../lib/agreements.js"
-import { mazatlanDate } from "../lib/dates.js"
+import { randomUUID } from 'node:crypto'
+import { AppError, notFound } from '../lib/errors.js'
+import { agreementStatusOn } from '../lib/agreements.js'
+import { mazatlanDate } from '../lib/dates.js'
 
 export function approvalNotifications({ prisma, mailer, clock, config }) {
   return {
@@ -11,18 +11,18 @@ export function approvalNotifications({ prisma, mailer, clock, config }) {
         include: { approvalNotification: true },
       })
       if (!company) throw notFound()
-      if (company.approvalStatus !== "approved")
+      if (company.approvalStatus !== 'approved')
         throw new AppError(
           409,
-          "NOT_APPROVED",
-          "La empresa aún no está aprobada.",
+          'NOT_APPROVED',
+          'La empresa aún no está aprobada.',
         )
       const notification = company.approvalNotification
       if (!notification)
         throw new AppError(
           409,
-          "NO_NOTIFICATION",
-          "No hay una notificación de aprobación pendiente.",
+          'NO_NOTIFICATION',
+          'No hay una notificación de aprobación pendiente.',
         )
       const now = clock(),
         claimToken = randomUUID()
@@ -30,12 +30,12 @@ export function approvalNotifications({ prisma, mailer, clock, config }) {
         where: {
           id: notification.id,
           OR: [
-            { status: { in: ["pending", "failed"] } },
-            { status: "sending", leaseUntil: { lt: now } },
+            { status: { in: ['pending', 'failed'] } },
+            { status: 'sending', leaseUntil: { lt: now } },
           ],
         },
         data: {
-          status: "sending",
+          status: 'sending',
           claimToken,
           leaseUntil: new Date(now.getTime() + 60_000),
         },
@@ -46,19 +46,19 @@ export function approvalNotifications({ prisma, mailer, clock, config }) {
         await mailer.sendCompanyApproval({
           to: notification.recipient,
           companyName: company.name,
-          loginUrl: new URL("/iniciar-sesion", config.frontendUrl).toString(),
+          loginUrl: new URL('/iniciar-sesion', config.frontendUrl).toString(),
           agreementStartDate:
             notification.agreementStartDate?.toISOString().slice(0, 10) || null,
           agreementEndDate:
             notification.agreementEndDate?.toISOString().slice(0, 10) || null,
           status: agreementStatusOn(notification, referenceDate),
           referenceDate,
-          timezone: "America/Mazatlan",
+          timezone: 'America/Mazatlan',
         })
         await prisma.approvalNotification.updateMany({
           where: { id: notification.id, claimToken },
           data: {
-            status: "sent",
+            status: 'sent',
             sentAt: clock(),
             claimToken: null,
             leaseUntil: null,
@@ -67,7 +67,7 @@ export function approvalNotifications({ prisma, mailer, clock, config }) {
       } catch {
         await prisma.approvalNotification.updateMany({
           where: { id: notification.id, claimToken },
-          data: { status: "failed", claimToken: null, leaseUntil: null },
+          data: { status: 'failed', claimToken: null, leaseUntil: null },
         })
       }
     },

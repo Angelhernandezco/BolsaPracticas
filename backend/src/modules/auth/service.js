@@ -1,66 +1,66 @@
-import { selectCareers } from '../careers/service.js';
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-import { AppError, invalid } from "../../lib/errors.js"
-import { userInclude } from "../../lib/serializers.js"
-import { registrationSchema, loginSchema, isUasEmail } from "./schemas.js"
+import { selectCareers } from '../careers/service.js'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError, invalid } from '../../lib/errors.js'
+import { userInclude } from '../../lib/serializers.js'
+import { registrationSchema, loginSchema, isUasEmail } from './schemas.js'
 export function createAuthService(ctx) {
   const { prisma, config, clock } = ctx
   return {
     async register(input) {
       const normalized = { ...input }
-      for (const key of ["matricula", "career", "rfc", "giro", "address"])
-        if (normalized[key] === "") delete normalized[key]
+      for (const key of ['matricula', 'career', 'rfc', 'giro', 'address'])
+        if (normalized[key] === '') delete normalized[key]
       const data = registrationSchema.parse(normalized)
       if (
-        data.role === "student" &&
+        data.role === 'student' &&
         (!isUasEmail(data.email) || !data.matricula || !data.career)
       )
         throw invalid(
-          "Usa @uas.edu o @uas.edu.mx e ingresa matrícula y carrera.",
+          'Usa @uas.edu, @uas.edu.mx o @ms.uas.edu.mx e ingresa matrícula y carrera.',
         )
-      if (data.role === "company" && (!data.rfc || !data.giro || !data.address))
-        throw invalid("Completa RFC, giro y dirección.")
+      if (data.role === 'company' && (!data.rfc || !data.giro || !data.address))
+        throw invalid('Completa RFC, giro y dirección.')
       const career =
-        data.role === "student"
+        data.role === 'student'
           ? await prisma.career.findUnique({ where: { name: data.career } })
           : null
-      if (data.role === "student" && !career)
-        throw invalid("Selecciona una carrera válida.")
-      return prisma.$transaction(async tx => {
-        if(career) await selectCareers(tx,{ids:[career.id]});
+      if (data.role === 'student' && !career)
+        throw invalid('Selecciona una carrera válida.')
+      return prisma.$transaction(async (tx) => {
+        if (career) await selectCareers(tx, { ids: [career.id] })
         return tx.user.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          passwordHash: await bcrypt.hash(data.password, 12),
-          roleId: data.role === "student" ? 1 : 2,
-          ...(career
-            ? {
-                student: {
-                  create: {
-                    name: data.name,
-                    matricula: data.matricula,
-                    careerId: career.id,
-                    phone: data.phone,
+          data: {
+            name: data.name,
+            email: data.email,
+            passwordHash: await bcrypt.hash(data.password, 12),
+            roleId: data.role === 'student' ? 1 : 2,
+            ...(career
+              ? {
+                  student: {
+                    create: {
+                      name: data.name,
+                      matricula: data.matricula,
+                      careerId: career.id,
+                      phone: data.phone,
+                    },
                   },
-                },
-              }
-            : {
-                company: {
-                  create: {
-                    name: data.name,
-                    rfc: data.rfc,
-                    giro: data.giro,
-                    address: data.address,
-                    phone: data.phone,
+                }
+              : {
+                  company: {
+                    create: {
+                      name: data.name,
+                      rfc: data.rfc,
+                      giro: data.giro,
+                      address: data.address,
+                      phone: data.phone,
+                    },
                   },
-                },
-              }),
-        },
-        include: userInclude,
-      });
-      });
+                }),
+          },
+          include: userInclude,
+        })
+      })
     },
     async login(input) {
       const data = loginSchema.parse(input)
@@ -75,8 +75,8 @@ export function createAuthService(ctx) {
       )
         throw new AppError(
           401,
-          "INVALID_CREDENTIALS",
-          "El correo o la contraseña no son correctos.",
+          'INVALID_CREDENTIALS',
+          'El correo o la contraseña no son correctos.',
         )
       return user
     },
@@ -95,7 +95,7 @@ export function createAuthService(ctx) {
             exp: Math.floor(expiresAt.getTime() / 1000),
           },
           config.jwtSecret,
-          { algorithm: "HS256" },
+          { algorithm: 'HS256' },
         ),
         expiresAt,
       }

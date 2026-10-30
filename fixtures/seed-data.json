@@ -118,10 +118,7 @@
       "giro": "Tecnologías de la información",
       "address": "Blvd. Centenario 850, Los Mochis, Sinaloa",
       "passwordKey": "demo",
-      "agreementOffsets": [
-        -30,
-        30
-      ]
+      "agreementOffsets": [-30, 30]
     },
     {
       "id": "company-unverified",
@@ -182,10 +179,7 @@
       "giro": "Agrotecnología",
       "address": "Carretera México 15 km 12, Guasave",
       "passwordKey": "demo",
-      "agreementOffsets": [
-        -60,
-        -1
-      ]
+      "agreementOffsets": [-60, -1]
     },
     {
       "id": "company-3",
@@ -199,10 +193,7 @@
       "giro": "Diseño y comunicación",
       "address": "Ángel Flores 310, Culiacán",
       "passwordKey": "demo",
-      "agreementOffsets": [
-        10,
-        90
-      ]
+      "agreementOffsets": [10, 90]
     },
     {
       "id": "admin-1",
@@ -301,10 +292,7 @@
       "contactName": "Laura Mendoza",
       "contactEmail": "talento@nebuladigital.mx",
       "contactPhone": "668 246 8024",
-      "careerIds": [
-        "Ingeniería en Software",
-        "Ingeniería Informática"
-      ],
+      "careerIds": ["Ingeniería en Software", "Ingeniería Informática"],
       "closingDate": "offset:30",
       "timezone": "America/Mazatlan",
       "status": "open",
@@ -323,10 +311,7 @@
       "contact": "personas@agronova.mx",
       "contactName": "Óscar Vega",
       "contactEmail": "personas@agronova.mx",
-      "careerIds": [
-        "Ingeniería en Software",
-        "Ingeniería Informática"
-      ],
+      "careerIds": ["Ingeniería en Software", "Ingeniería Informática"],
       "closingDate": "offset:18",
       "timezone": "America/Mazatlan",
       "status": "open",
@@ -345,9 +330,7 @@
       "contact": "hola@estudionorte.mx",
       "contactName": "Sofía Ríos",
       "contactEmail": "hola@estudionorte.mx",
-      "careerIds": [
-        "Diseño Gráfico"
-      ],
+      "careerIds": ["Diseño Gráfico"],
       "closingDate": "offset:12",
       "timezone": "America/Mazatlan",
       "status": "open",
@@ -366,9 +349,7 @@
       "contact": "talento@nebuladigital.mx",
       "contactName": "Laura Mendoza",
       "contactEmail": "talento@nebuladigital.mx",
-      "careerIds": [
-        "Ingeniería en Software"
-      ],
+      "careerIds": ["Ingeniería en Software"],
       "closingDate": "offset:-2",
       "timezone": "America/Mazatlan",
       "status": "open",
@@ -387,9 +368,7 @@
       "contact": "talento@nebuladigital.mx",
       "contactName": "Laura Mendoza",
       "contactEmail": "talento@nebuladigital.mx",
-      "careerIds": [
-        "Ingeniería Informática"
-      ],
+      "careerIds": ["Ingeniería Informática"],
       "closingDate": "offset:15",
       "timezone": "America/Mazatlan",
       "status": "closed",

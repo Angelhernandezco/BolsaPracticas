@@ -1,7 +1,7 @@
-import { z } from "zod"
-import { serializeUser, userInclude } from "../../lib/serializers.js"
-import { AppError, notFound, invalid } from "../../lib/errors.js"
-import { validateAgreementDates } from "../../lib/agreements.js"
+import { z } from 'zod'
+import { serializeUser, userInclude } from '../../lib/serializers.js'
+import { AppError, notFound, invalid } from '../../lib/errors.js'
+import { validateAgreementDates } from '../../lib/agreements.js'
 
 export const companyReviewInclude = {
   ...userInclude,
@@ -40,7 +40,7 @@ export function adminService({ prisma, clock }) {
       const users = await prisma.user.findMany({
         where: { roleId: 2 },
         include: companyReviewInclude,
-        orderBy: { registeredAt: "desc" },
+        orderBy: { registeredAt: 'desc' },
       })
       return users.map(serializeCompanyReview)
     },
@@ -50,17 +50,17 @@ export function adminService({ prisma, clock }) {
       return get(userId)
     },
     async resolve(userId, adminId, input) {
-      const { decision, reason = "" } = z
+      const { decision, reason = '' } = z
         .object({
-          decision: z.enum(["approved", "rejected"]),
+          decision: z.enum(['approved', 'rejected']),
           reason: z.string().trim().max(5000).optional(),
         })
         .parse(input)
-      if (decision === "rejected" && !reason)
-        throw invalid("Escribe un motivo para rechazar la solicitud.")
+      if (decision === 'rejected' && !reason)
+        throw invalid('Escribe un motivo para rechazar la solicitud.')
       const hasDates =
-        Object.hasOwn(input, "agreementStartDate") ||
-        Object.hasOwn(input, "agreementEndDate")
+        Object.hasOwn(input, 'agreementStartDate') ||
+        Object.hasOwn(input, 'agreementEndDate')
       const dates = hasDates
         ? validateAgreementDates({
             agreementStartDate: input.agreementStartDate,
@@ -71,13 +71,13 @@ export function adminService({ prisma, clock }) {
         const updated = await tx.company.updateMany({
           where: {
             userId,
-            approvalStatus: "pending",
+            approvalStatus: 'pending',
             user: { emailVerified: true },
           },
           data: {
             ...dates,
             approvalStatus: decision,
-            rejectionReason: decision === "rejected" ? reason : null,
+            rejectionReason: decision === 'rejected' ? reason : null,
             resolvedAt: clock(),
             resolvedById: adminId,
           },
@@ -85,10 +85,10 @@ export function adminService({ prisma, clock }) {
         if (!updated.count)
           throw new AppError(
             409,
-            "REVIEW_CONFLICT",
-            "La solicitud ya fue resuelta o el correo aún no está verificado.",
+            'REVIEW_CONFLICT',
+            'La solicitud ya fue resuelta o el correo aún no está verificado.',
           )
-        if (decision === "approved") {
+        if (decision === 'approved') {
           const company = await tx.company.findUniqueOrThrow({
             where: { userId },
             include: { user: true },

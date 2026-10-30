@@ -1,33 +1,33 @@
-import { test } from "node:test"
-import assert from "node:assert/strict"
-import { randomUUID } from "node:crypto"
-import { spawnSync } from "node:child_process"
-import { mkdtemp, readFile, stat } from "node:fs/promises"
-import { tmpdir } from "node:os"
-import path from "node:path"
-import bcrypt from "bcrypt"
-import request from "supertest"
-import { createApp } from "../src/app.js"
-import { loadConfig } from "../src/config.js"
-import { createStorage } from "../src/services/storage/index.js"
-import { PrismaClient } from "@prisma/client"
-import { assertTestDatabase, backendRoot } from "../src/config.js"
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import { spawnSync } from 'node:child_process'
+import { mkdtemp, readFile, stat } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import bcrypt from 'bcrypt'
+import request from 'supertest'
+import { createApp } from '../src/app.js'
+import { loadConfig } from '../src/config.js'
+import { createStorage } from '../src/services/storage/index.js'
+import { PrismaClient } from '@prisma/client'
+import { assertTestDatabase, backendRoot } from '../src/config.js'
 
 async function schemaDb() {
   assertTestDatabase(
     process.env.DATABASE_URL,
-    "postgresql://localhost/bolsa_practicas",
+    'postgresql://localhost/bolsa_practicas',
   )
   const url = new URL(process.env.DATABASE_URL),
-    schema = `sql_${randomUUID().replaceAll("-", "")}`
-  url.searchParams.set("schema", schema)
+    schema = `sql_${randomUUID().replaceAll('-', '')}`
+  url.searchParams.set('schema', schema)
   const db = new PrismaClient({ datasourceUrl: url.toString() })
   await db.$executeRawUnsafe(`CREATE SCHEMA "${schema}"`)
   return { db, url, schema }
 }
 async function snapshot(db) {
   const users = await db.user.findMany({
-    orderBy: { email: "asc" },
+    orderBy: { email: 'asc' },
     include: {
       student: { include: { career: true, cv: true } },
       company: true,
@@ -35,7 +35,7 @@ async function snapshot(db) {
   })
   return {
     careers: await db.career.findMany({
-      orderBy: { seedKey: "asc" },
+      orderBy: { seedKey: 'asc' },
       select: { seedKey: true, name: true, active: true },
     }),
     users: users.map((u) => ({
@@ -56,19 +56,19 @@ async function snapshot(db) {
       },
     })),
     opportunities: await db.opportunity.findMany({
-      orderBy: { title: "asc" },
+      orderBy: { title: 'asc' },
       select: {
         title: true,
         status: true,
         closingDate: true,
         careers: {
           select: { career: { select: { seedKey: true } } },
-          orderBy: { careerId: "asc" },
+          orderBy: { careerId: 'asc' },
         },
       },
     }),
     applications: await db.application.findMany({
-      orderBy: { id: "asc" },
+      orderBy: { id: 'asc' },
       select: {
         opportunityTitle: true,
         companyName: true,
@@ -78,32 +78,30 @@ async function snapshot(db) {
     }),
   }
 }
-test("sql_and_javascript_seed_same_fixed_scenarios", async () => {
-  const { loadSeedData, seedCatalogs, seedDemo } = await import(
-    "../prisma/seed-data.js"
-  )
-  const { renderInstallSql } = await import(
-    "../scripts/generate-install-sql.js"
-  )
+test('sql_and_javascript_seed_same_fixed_scenarios', async () => {
+  const { loadSeedData, seedCatalogs, seedDemo } =
+    await import('../prisma/seed-data.js')
+  const { renderInstallSql } =
+    await import('../scripts/generate-install-sql.js')
   const a = await schemaDb(),
     b = await schemaDb(),
     manifest = loadSeedData(),
-    referenceDate = "2026-10-29"
+    referenceDate = '2026-10-29'
   try {
     const sql = await renderInstallSql(manifest, { referenceDate })
-    const { installSqlFixture } = await import("./sql-fixture.js");
-    installSqlFixture(sql, a.url);
-    installSqlFixture(sql, b.url);
+    const { installSqlFixture } = await import('./sql-fixture.js')
+    installSqlFixture(sql, a.url)
+    installSqlFixture(sql, b.url)
     // Recreate a separate migrated JS target without seeded SQL rows.
     const c = await schemaDb()
     try {
       const migrated = spawnSync(
         process.execPath,
-        ["node_modules/prisma/build/index.js", "migrate", "deploy"],
+        ['node_modules/prisma/build/index.js', 'migrate', 'deploy'],
         {
           cwd: backendRoot,
           env: { ...process.env, DATABASE_URL: c.url.toString() },
-          encoding: "utf8",
+          encoding: 'utf8',
         },
       )
       assert.equal(migrated.status, 0, migrated.stderr)
@@ -113,19 +111,19 @@ test("sql_and_javascript_seed_same_fixed_scenarios", async () => {
       const drift = spawnSync(
         process.execPath,
         [
-          "node_modules/prisma/build/index.js",
-          "migrate",
-          "diff",
-          "--from-url",
+          'node_modules/prisma/build/index.js',
+          'migrate',
+          'diff',
+          '--from-url',
           a.url.toString(),
-          "--to-schema-datamodel",
-          "prisma/schema.prisma",
-          "--exit-code",
+          '--to-schema-datamodel',
+          'prisma/schema.prisma',
+          '--exit-code',
         ],
         {
           cwd: backendRoot,
           env: { ...process.env, DATABASE_URL: a.url.toString() },
-          encoding: "utf8",
+          encoding: 'utf8',
         },
       )
       assert.equal(drift.status, 0, drift.stdout + drift.stderr)
@@ -134,17 +132,17 @@ test("sql_and_javascript_seed_same_fixed_scenarios", async () => {
       for (const user of await a.db.user.findMany())
         assert.ok(
           await bcrypt.compare(
-            manifest.passwords[user.email.startsWith("e2e-") ? "e2e" : "demo"]
+            manifest.passwords[user.email.startsWith('e2e-') ? 'e2e' : 'demo']
               .plain,
             user.passwordHash,
           ),
         )
       const career = await c.db.career.findUniqueOrThrow({
-        where: { seedKey: "software" },
+        where: { seedKey: 'software' },
       })
       await c.db.career.update({
         where: { id: career.id },
-        data: { name: "Software renombrado", active: false },
+        data: { name: 'Software renombrado', active: false },
       })
       await seedCatalogs(c.db, manifest)
       assert.equal(await c.db.career.count({ where: { name: career.name } }), 0)
@@ -161,30 +159,28 @@ test("sql_and_javascript_seed_same_fixed_scenarios", async () => {
     await b.db.$disconnect()
   }
 })
-test("sql_demo_cv_bytes_are_prepared_without_overwriting_existing_files", async () => {
-  const { loadSeedData, seedCatalogs, seedDemo } = await import(
-    "../prisma/seed-data.js"
-  )
-  const { prepareDemoAssets } = await import(
-    "../scripts/prepare-demo-assets.js"
-  )
-  const { localStorage } = await import("../src/services/storage/local.js")
+test('sql_demo_cv_bytes_are_prepared_without_overwriting_existing_files', async () => {
+  const { loadSeedData, seedCatalogs, seedDemo } =
+    await import('../prisma/seed-data.js')
+  const { prepareDemoAssets } =
+    await import('../scripts/prepare-demo-assets.js')
+  const { localStorage } = await import('../src/services/storage/local.js')
   const target = await schemaDb(),
-    directory = await mkdtemp(path.join(tmpdir(), "demo-assets-"))
+    directory = await mkdtemp(path.join(tmpdir(), 'demo-assets-'))
   try {
     const migrated = spawnSync(
       process.execPath,
-      ["node_modules/prisma/build/index.js", "migrate", "deploy"],
+      ['node_modules/prisma/build/index.js', 'migrate', 'deploy'],
       {
         cwd: backendRoot,
         env: { ...process.env, DATABASE_URL: target.url.toString() },
-        encoding: "utf8",
+        encoding: 'utf8',
       },
     )
     assert.equal(migrated.status, 0, migrated.stderr)
     const manifest = loadSeedData()
     await seedCatalogs(target.db, manifest)
-    await seedDemo(target.db, manifest, { referenceDate: "2026-10-29" })
+    await seedDemo(target.db, manifest, { referenceDate: '2026-10-29' })
     const storage = localStorage(directory)
     await prepareDemoAssets(target.db, storage, manifest)
     const file = await target.db.storedFile.findFirstOrThrow()
@@ -193,7 +189,7 @@ test("sql_demo_cv_bytes_are_prepared_without_overwriting_existing_files", async 
     await prepareDemoAssets(target.db, storage, manifest)
     assert.equal((await stat(filename)).mtimeMs, before.mtimeMs)
     assert.ok(
-      (await readFile(filename)).subarray(0, 5).equals(Buffer.from("%PDF-")),
+      (await readFile(filename)).subarray(0, 5).equals(Buffer.from('%PDF-')),
     )
     const config = { ...loadConfig(process.env), storageDir: directory },
       app = createApp({
@@ -201,15 +197,15 @@ test("sql_demo_cv_bytes_are_prepared_without_overwriting_existing_files", async 
         config,
         storage: createStorage(config),
       })
-    for (const email of ["mariana.lopez@uas.edu", "empresa@demo.mx"]) {
+    for (const email of ['mariana.lopez@uas.edu', 'empresa@demo.mx']) {
       const agent = request.agent(app)
       await agent
-        .post("/api/auth/login")
-        .send({ email, password: "Demo1234" })
+        .post('/api/auth/login')
+        .send({ email, password: 'Demo1234' })
         .expect(200)
       await agent
         .get(`/api/files/${file.id}`)
-        .expect("Content-Type", /pdf/)
+        .expect('Content-Type', /pdf/)
         .expect(200)
     }
   } finally {

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { localCalendarDate } from "../lib/agreements"
+import { useEffect, useState } from 'react'
+import { localCalendarDate } from '../lib/agreements'
 
 export default function useLocalCalendarDate(): string {
   const [today, setToday] = useState(localCalendarDate)
@@ -17,15 +17,15 @@ export default function useLocalCalendarDate(): string {
       timer = window.setTimeout(update, midnight.getTime() - now.getTime() + 50)
     }
     function onVisibilityChange() {
-      if (document.visibilityState === "visible") update()
+      if (document.visibilityState === 'visible') update()
     }
     update()
-    window.addEventListener("focus", update)
-    document.addEventListener("visibilitychange", onVisibilityChange)
+    window.addEventListener('focus', update)
+    document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
       window.clearTimeout(timer)
-      window.removeEventListener("focus", update)
-      document.removeEventListener("visibilitychange", onVisibilityChange)
+      window.removeEventListener('focus', update)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [])
   return today

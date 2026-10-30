@@ -1,13 +1,13 @@
-import { test, expect } from "@playwright/test"
-import { login, password, unique, verificationUrl } from "./fixtures.js"
-test("homepage CTA has upper separation", async ({ page }, info) => {
-  await page.goto("/")
-  const cta = page.locator(".cta-section")
+import { test, expect } from '@playwright/test'
+import { login, password, unique, verificationUrl } from './fixtures.js'
+test('homepage CTA has upper separation', async ({ page }, info) => {
+  await page.goto('/')
+  const cta = page.locator('.cta-section')
   await expect(cta).toBeVisible()
   expect(
     await cta.evaluate((e) => parseFloat(getComputedStyle(e).paddingTop)),
   ).toBeGreaterThanOrEqual(24)
-  await cta.screenshot({ path: info.outputPath("cta.png") })
+  await cta.screenshot({ path: info.outputPath('cta.png') })
 })
 for (const viewport of [
   { width: 1366, height: 600 },
@@ -22,39 +22,47 @@ for (const viewport of [
     const id = unique(),
       email = `layout-${id}@example.com`,
       name = `Empresa ${id}`
-    const res = await page.request.post("/api/auth/register", {
+    const res = await page.request.post('/api/auth/register', {
       data: {
-        role: "company",
+        role: 'company',
         name,
         email,
         password,
         rfc: `LYT${id.slice(-9)}`,
-        giro: "Servicios y tecnología",
+        giro: 'Servicios y tecnología',
         address:
-          "Dirección larga para revisar ajuste de textos y accesibilidad en pantallas de poca altura ".repeat(
+          'Dirección larga para revisar ajuste de textos y accesibilidad en pantallas de poca altura '.repeat(
             2,
           ),
       },
     })
     expect(res.status()).toBe(201)
     const token = new URL(await verificationUrl(email)).searchParams.get(
-      "token",
+      'token',
     )
-    await page.request.post("/api/auth/email/verify", { data: { token } })
-    await page.request.post("/api/auth/logout")
-    await login(page, "e2e-admin@example.com")
-    await page.goto("/admin/solicitudes")
+    await page.request.post('/api/auth/email/verify', { data: { token } })
+    await page.request.post('/api/auth/logout')
+    await login(page, 'e2e-admin@example.com')
+    await page.goto('/admin/solicitudes')
     await page
-      .locator(".candidate-card")
+      .locator('.candidate-card')
       .filter({ hasText: name })
-      .getByRole("button", { name: "Abrir ficha de revisión" })
+      .getByRole('button', { name: 'Abrir ficha de revisión' })
       .click()
-    const dialog = page.getByRole("dialog")
-    await dialog.getByLabel("Fecha inicial del convenio",{exact:true}).fill("2026-01-01"); await dialog.getByLabel("Fecha final del convenio",{exact:true}).fill("2027-12-31")
+    const dialog = page.getByRole('dialog')
+    await expect(
+      dialog.getByText('Total de convocatorias', { exact: true }),
+    ).toHaveCount(0)
     await dialog
-      .getByRole("button", { name: "Guardar convenio", exact: true })
+      .getByLabel('Fecha inicial del convenio', { exact: true })
+      .fill('2026-01-01')
+    await dialog
+      .getByLabel('Fecha final del convenio', { exact: true })
+      .fill('2027-12-31')
+    await dialog
+      .getByRole('button', { name: 'Guardar convenio', exact: true })
       .click()
-    const notice = dialog.locator(".notice.success")
+    const notice = dialog.locator('.notice.success')
     await expect(notice).toBeVisible()
     await notice.scrollIntoViewIfNeeded()
     const spacing = await notice.evaluate((e) => {
@@ -68,7 +76,7 @@ for (const viewport of [
     expect(spacing.top).toBeGreaterThanOrEqual(12)
     expect(spacing.bottom).toBeGreaterThanOrEqual(12)
     expect(spacing.padding).toBeGreaterThanOrEqual(12)
-    const actions = dialog.locator(".modal-actions"),
+    const actions = dialog.locator('.modal-actions'),
       rect = await actions.boundingBox()
     expect(rect.y).toBeGreaterThanOrEqual(0)
     expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height)
@@ -76,7 +84,7 @@ for (const viewport of [
       true,
     )
     await expect(
-      dialog.getByRole("button", { name: "Aprobar", exact: true }),
+      dialog.getByRole('button', { name: 'Aprobar', exact: true }),
     ).toBeInViewport()
-    await page.screenshot({ path: info.outputPath("review.png") })
+    await page.screenshot({ path: info.outputPath('review.png') })
   })

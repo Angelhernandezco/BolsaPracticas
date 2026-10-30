@@ -1,16 +1,16 @@
-import { serializeUser } from "../../lib/serializers.js"
-import { createEmailService } from "./email.service.js"
+import { serializeUser } from '../../lib/serializers.js'
+import { createEmailService } from './email.service.js'
 export function createAuthController(ctx, service) {
   const email = createEmailService(ctx)
   const cookieOptions = {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: 'lax',
     secure: ctx.config.secure,
-    path: "/api",
+    path: '/api',
   }
   async function sendSession(res, user, status = 200, extras = {}) {
     const { token } = await service.createSession(user.id)
-    res.cookie("bolsa-token", token, { ...cookieOptions, maxAge: 8 * 3600_000 })
+    res.cookie('bolsa-token', token, { ...cookieOptions, maxAge: 8 * 3600_000 })
     res.status(status).json({ ...serializeUser(user), ...extras })
   }
   return {
@@ -22,7 +22,7 @@ export function createAuthController(ctx, service) {
         verificationEmailSent = true
       } catch {
         console.error(
-          "No se pudo enviar verificación; cuenta pendiente conservada.",
+          'No se pudo enviar verificación; cuenta pendiente conservada.',
         )
       }
       await sendSession(res, user, 201, { verificationEmailSent })
@@ -35,7 +35,7 @@ export function createAuthController(ctx, service) {
     session: (req, res) => res.json(serializeUser(req.user)),
     logout: async (req, res) => {
       await service.logout(req.sessionId)
-      res.clearCookie("bolsa-token", cookieOptions).json({ ok: true })
+      res.clearCookie('bolsa-token', cookieOptions).json({ ok: true })
     },
   }
 }

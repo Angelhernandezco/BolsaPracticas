@@ -1,6 +1,6 @@
-import cors from "cors"
-import helmet from "helmet"
-import { forbidden } from "../lib/errors.js"
+import cors from 'cors'
+import helmet from 'helmet'
+import { forbidden } from '../lib/errors.js'
 export function installSecurity(app, config) {
   const origins = config.origins || []
   app.use(helmet({ contentSecurityPolicy: false }))
@@ -9,8 +9,8 @@ export function installSecurity(app, config) {
       return next(forbidden())
     // Browsers may omit Origin on navigations: disallow cross-site cookie mutations too.
     if (
-      !["GET", "HEAD", "OPTIONS"].includes(req.method) &&
-      req.headers["sec-fetch-site"] === "cross-site"
+      !['GET', 'HEAD', 'OPTIONS'].includes(req.method) &&
+      req.headers['sec-fetch-site'] === 'cross-site'
     )
       return next(forbidden())
     next()

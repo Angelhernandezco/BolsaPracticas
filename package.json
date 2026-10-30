@@ -7,14 +7,15 @@
     "build": "npm --prefix frontend run build --",
     "preview": "npm --prefix frontend run preview --",
     "typecheck": "npm --prefix frontend run typecheck",
-    "format": "npm --prefix frontend run format --",
+    "format": "prettier --write .",
     "dev:backend": "npm --prefix backend run dev",
     "test:backend": "npm --prefix backend test",
     "test:e2e": "playwright test",
-    "postinstall": "npm --prefix frontend install --no-audit --no-fund"
+    "postinstall": "npm --prefix frontend install --no-audit --no-fund",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "oxfmt": "^0.2.0"
+    "prettier": "^3.9.10"
   }
 }

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
-import { CheckCircle2, Clock3 } from "lucide-react"
-import { useAuth } from "../../app/AuthContext"
+import { useCallback, useEffect, useState } from 'react'
+import { CheckCircle2, Clock3 } from 'lucide-react'
+import { useAuth } from '../../app/AuthContext'
 import {
   Avatar,
   Badge,
@@ -13,37 +13,37 @@ import {
   QueryError,
   Textarea,
   Title,
-} from "../../components/ui"
-import CompanyDetails from "../../components/CompanyDetails"
-import AgreementDatesFields from "../../components/AgreementDatesFields"
-import { agreementDates, agreementDateError } from "../../lib/agreements"
-import { api, getErrorMessage } from "../../services/api"
-import type { AgreementDates, CompanyReview } from "../../types"
+} from '../../components/ui'
+import CompanyDetails from '../../components/CompanyDetails'
+import AgreementDatesFields from '../../components/AgreementDatesFields'
+import { agreementDates, agreementDateError } from '../../lib/agreements'
+import { api, getErrorMessage } from '../../services/api'
+import type { AgreementDates, CompanyReview } from '../../types'
 
 export default function AdminRequestsPage() {
   const { user } = useAuth()
   const [companies, setCompanies] = useState<CompanyReview[]>([])
   const [selected, setSelected] = useState<CompanyReview | null>(null)
   const [dates, setDates] = useState<AgreementDates>(agreementDates({}))
-  const [decision, setDecision] = useState<"approved" | "rejected" | null>(null)
-  const [reason, setReason] = useState("")
-  const [message, setMessage] = useState("")
+  const [decision, setDecision] = useState<'approved' | 'rejected' | null>(null)
+  const [reason, setReason] = useState('')
+  const [message, setMessage] = useState('')
   const [messageIsError, setMessageIsError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [queryError, setQueryError] = useState("")
+  const [queryError, setQueryError] = useState('')
   const load = useCallback(async () => {
     setLoading(true)
-    setQueryError("")
+    setQueryError('')
     try {
       setCompanies(
         (await api.listCompanies()).filter(
-          (company) => company.approvalStatus === "pending",
+          (company) => company.approvalStatus === 'pending',
         ),
       )
     } catch (error) {
       setQueryError(
-        getErrorMessage(error, "No pudimos cargar las solicitudes."),
+        getErrorMessage(error, 'No pudimos cargar las solicitudes.'),
       )
     } finally {
       setLoading(false)
@@ -55,9 +55,9 @@ export default function AdminRequestsPage() {
   function open(company: CompanyReview) {
     setSelected(company)
     setDates(agreementDates(company))
-    setMessage("")
+    setMessage('')
     setMessageIsError(false)
-    setReason("")
+    setReason('')
   }
   async function submit(resolve: boolean) {
     if (!selected || !user || saving) return
@@ -68,7 +68,7 @@ export default function AdminRequestsPage() {
       return
     }
     setSaving(true)
-    setMessage("")
+    setMessage('')
     setMessageIsError(false)
     try {
       if (resolve && decision) {
@@ -84,16 +84,16 @@ export default function AdminRequestsPage() {
         )
         setMessage(
           `La solicitud fue ${
-            decision === "approved" ? "aprobada" : "rechazada"
+            decision === 'approved' ? 'aprobada' : 'rechazada'
           } correctamente.${
-            updated.approvalNotification?.status === "failed"
-              ? " No pudimos enviar el correo; puedes reintentarlo desde el detalle de la empresa."
-              : ""
+            updated.approvalNotification?.status === 'failed'
+              ? ' No pudimos enviar el correo; puedes reintentarlo desde el detalle de la empresa.'
+              : ''
           }`,
         )
         setDecision(null)
         setSelected(null)
-        setReason("")
+        setReason('')
       } else {
         const updated = await api.setCompanyAgreement(selected.id, dates, user)
         setSelected(updated)
@@ -103,11 +103,11 @@ export default function AdminRequestsPage() {
           ),
         )
         setMessage(
-          "El convenio se actualizó correctamente sin resolver la solicitud.",
+          'El convenio se actualizó correctamente sin resolver la solicitud.',
         )
       }
     } catch (error) {
-      setMessage(getErrorMessage(error, "No pudimos guardar la solicitud."))
+      setMessage(getErrorMessage(error, 'No pudimos guardar la solicitud.'))
       setMessageIsError(true)
     } finally {
       setSaving(false)
@@ -115,8 +115,8 @@ export default function AdminRequestsPage() {
   }
   const notice = message ? (
     <div
-      className={`notice ${messageIsError ? "warning" : "success"}`}
-      role={messageIsError ? "alert" : "status"}
+      className={`notice ${messageIsError ? 'warning' : 'success'}`}
+      role={messageIsError ? 'alert' : 'status'}
     >
       {message}
     </div>
@@ -155,13 +155,13 @@ export default function AdminRequestsPage() {
               </div>
               <div className="candidate-meta">
                 <span>
-                  <Clock3 />{" "}
-                  {new Date(company.registeredAt).toLocaleDateString("es-MX")}
+                  <Clock3 />{' '}
+                  {new Date(company.registeredAt).toLocaleDateString('es-MX')}
                 </span>
                 <span>
                   {company.emailVerified
-                    ? "Correo verificado"
-                    : "Correo sin verificar"}
+                    ? 'Correo verificado'
+                    : 'Correo sin verificar'}
                 </span>
               </div>
               <Button variant="secondary" onClick={() => open(company)}>
@@ -202,8 +202,8 @@ export default function AdminRequestsPage() {
               variant="danger"
               disabled={saving || !selected?.emailVerified}
               onClick={() => {
-                setMessage("")
-                setDecision("rejected")
+                setMessage('')
+                setDecision('rejected')
               }}
             >
               Rechazar
@@ -211,8 +211,8 @@ export default function AdminRequestsPage() {
             <Button
               disabled={saving || !selected?.emailVerified}
               onClick={() => {
-                setMessage("")
-                setDecision("approved")
+                setMessage('')
+                setDecision('approved')
               }}
             >
               Aprobar
@@ -224,6 +224,7 @@ export default function AdminRequestsPage() {
           <>
             <CompanyDetails
               company={selected}
+              showOpportunityCount={false}
               agreementControl={
                 <AgreementDatesFields
                   value={dates}
@@ -238,7 +239,7 @@ export default function AdminRequestsPage() {
       </Modal>
       <Modal
         open={!!decision}
-        title={decision === "approved" ? "Aprobar empresa" : "Rechazar empresa"}
+        title={decision === 'approved' ? 'Aprobar empresa' : 'Rechazar empresa'}
         busy={saving}
         onClose={() => setDecision(null)}
         actions={
@@ -251,16 +252,16 @@ export default function AdminRequestsPage() {
               Cancelar
             </Button>
             <Button
-              variant={decision === "rejected" ? "danger" : "primary"}
+              variant={decision === 'rejected' ? 'danger' : 'primary'}
               loading={saving}
               onClick={() => void submit(true)}
             >
-              Confirmar {decision === "approved" ? "aprobación" : "rechazo"}
+              Confirmar {decision === 'approved' ? 'aprobación' : 'rechazo'}
             </Button>
           </>
         }
       >
-        {decision === "approved" ? (
+        {decision === 'approved' ? (
           <p>
             ¿Confirmas que <strong>{selected?.name}</strong> puede acceder al
             panel empresarial? Las fechas opcionales de convenio se guardarán

@@ -1,12 +1,11 @@
-import { z } from "zod"
-import { forbidden, invalid, notFound } from "../../lib/errors.js"
-import { fileUrl } from "../../lib/serializers.js"
-import { effectiveStatus } from "../../lib/dates.js"
-import { lockOpportunity, checkOwner } from "../opportunities/service.js"
+import { z } from 'zod'
+import { forbidden, invalid, notFound } from '../../lib/errors.js'
+import { fileUrl } from '../../lib/serializers.js'
+import { effectiveStatus } from '../../lib/dates.js'
+import { lockOpportunity, checkOwner } from '../opportunities/service.js'
 const applicationInclude = {
-  student: { include: { user: true, career: true } },
+  student: { include: { user: true, career: true, cv: true } },
   opportunity: { include: { company: true } },
-  cv: true,
 }
 function serialize(a, now) {
   return {
@@ -15,6 +14,7 @@ function serialize(a, now) {
     studentId: String(a.student.userId),
     opportunityTitle: a.opportunity.title || a.opportunityTitle,
     companyName: a.opportunity.company.name || a.companyName,
+    companyLogo: fileUrl(a.opportunity.company.logoId),
     opportunityStatus: effectiveStatus(a.opportunity, now),
     date: a.date.toISOString(),
     status: a.status,
@@ -27,7 +27,7 @@ export function applicationsService({ prisma, clock }) {
         await prisma.application.findMany({
           where: { studentId: user.student.id },
           include: applicationInclude,
-          orderBy: { date: "desc" },
+          orderBy: { date: 'desc' },
         })
       ).map((a) => serialize(a, clock()))
     },
@@ -35,18 +35,18 @@ export function applicationsService({ prisma, clock }) {
       return prisma.$transaction(async (tx) => {
         const o = await lockOpportunity(tx, opportunityId)
         if (
-          effectiveStatus(o, clock()) !== "open" ||
-          o.company.approvalStatus !== "approved" ||
+          effectiveStatus(o, clock()) !== 'open' ||
+          o.company.approvalStatus !== 'approved' ||
           !o.company.user.active
         )
-          throw invalid("La convocatoria está cerrada o su plazo terminó.")
+          throw invalid('La convocatoria está cerrada o su plazo terminó.')
         // Re-read current CV after acquiring the opportunity lock; never trust the client payload.
         const student = await tx.student.findUniqueOrThrow({
           where: { userId: user.id },
         })
         if (!student.cvId || !student.careerId || !student.matricula)
           throw invalid(
-            "Completa tu perfil y carga tu currículum antes de postularte.",
+            'Completa tu perfil y carga tu currículum antes de postularte.',
           )
         const a = await tx.application.create({
           data: {
@@ -70,7 +70,7 @@ export function applicationsService({ prisma, clock }) {
         await prisma.application.findMany({
           where: { opportunityId: id },
           include: applicationInclude,
-          orderBy: { date: "desc" },
+          orderBy: { date: 'desc' },
         })
       ).map((a) => ({
         id: String(a.student.userId),
@@ -78,14 +78,17 @@ export function applicationsService({ prisma, clock }) {
         name: a.student.user.name,
         career: a.student.career.name,
         date: a.date.toISOString(),
-        cvName: a.cv?.name || "CV no disponible",
-        cvUrl: fileUrl(a.cvId) || "",
+        cvName: a.student.cv?.name || 'CV no disponible',
+        cvUrl: a.student.cvId
+          ? `/api/company/candidates/${a.student.userId}/cv`
+          : '',
         initials: a.student.user.name
-          .split(" ")
+          .split(' ')
           .map((w) => w[0])
-          .join("")
+          .join('')
           .slice(0, 2),
         email: a.student.user.email,
+        photo: fileUrl(a.student.photoId),
         phone: a.student.phone,
         bio: a.student.bio,
         status: a.status,
@@ -94,7 +97,7 @@ export function applicationsService({ prisma, clock }) {
     async status(user, id, applicationId, input) {
       const { status } = z
         .object({
-          status: z.enum(["ENVIADA", "EN_REVISION", "ACEPTADA", "RECHAZADA"]),
+          status: z.enum(['ENVIADA', 'EN_REVISION', 'ACEPTADA', 'RECHAZADA']),
         })
         .parse(input)
       return prisma.$transaction(async (tx) => {

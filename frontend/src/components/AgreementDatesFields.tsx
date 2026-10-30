@@ -1,5 +1,5 @@
-import { Field, Input } from "./ui"
-import type { AgreementDates } from "../types"
+import { Field, Input } from './ui'
+import type { AgreementDates } from '../types'
 
 interface Props {
   value: AgreementDates
@@ -26,7 +26,7 @@ export default function AgreementDatesFields({
         <Field label="Fecha inicial del convenio">
           <Input
             type="date"
-            value={value.agreementStartDate || ""}
+            value={value.agreementStartDate || ''}
             disabled={disabled}
             onChange={(event) =>
               onChange({
@@ -39,7 +39,7 @@ export default function AgreementDatesFields({
         <Field label="Fecha final del convenio">
           <Input
             type="date"
-            value={value.agreementEndDate || ""}
+            value={value.agreementEndDate || ''}
             disabled={disabled}
             onChange={(event) =>
               onChange({

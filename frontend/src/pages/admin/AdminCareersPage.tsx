@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react"
-import { GraduationCap, Plus, Search } from "lucide-react"
+import { useCallback, useEffect, useState } from 'react'
+import { GraduationCap, Plus, Search } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -12,29 +12,29 @@ import {
   QueryError,
   Select,
   Title,
-} from "../../components/ui"
-import CareerForm from "../../components/CareerForm"
-import { api, getErrorMessage } from "../../services/api"
-import type { CareerDto } from "../../types"
+} from '../../components/ui'
+import CareerForm from '../../components/CareerForm'
+import { api, getErrorMessage } from '../../services/api'
+import type { CareerDto } from '../../types'
 
 export default function AdminCareersPage() {
   const [careers, setCareers] = useState<CareerDto[]>([])
   const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState("")
-  const [mutationError, setMutationError] = useState("")
-  const [query, setQuery] = useState("")
-  const [status, setStatus] = useState("")
+  const [loadError, setLoadError] = useState('')
+  const [mutationError, setMutationError] = useState('')
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('')
   const [editing, setEditing] = useState<CareerDto | null | undefined>()
   const [deactivating, setDeactivating] = useState<CareerDto | null>(null)
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
-    setLoadError("")
+    setLoadError('')
     try {
       setCareers(await api.listCareers())
     } catch (error) {
-      setLoadError(getErrorMessage(error, "No pudimos cargar las carreras."))
+      setLoadError(getErrorMessage(error, 'No pudimos cargar las carreras.'))
     } finally {
       setLoading(false)
     }
@@ -45,7 +45,7 @@ export default function AdminCareersPage() {
 
   async function save(name: string) {
     setBusy(true)
-    setMutationError("")
+    setMutationError('')
     try {
       const updated = editing
         ? await api.updateCareer(editing.id, { name })
@@ -59,14 +59,14 @@ export default function AdminCareersPage() {
       )
       setEditing(undefined)
     } catch (error) {
-      setMutationError(getErrorMessage(error, "No pudimos guardar la carrera."))
+      setMutationError(getErrorMessage(error, 'No pudimos guardar la carrera.'))
     } finally {
       setBusy(false)
     }
   }
   async function changeStatus(career: CareerDto, active: boolean) {
     setBusy(true)
-    setMutationError("")
+    setMutationError('')
     try {
       const updated = await api.updateCareer(career.id, { active })
       setCareers((current) =>
@@ -75,7 +75,7 @@ export default function AdminCareersPage() {
       setDeactivating(null)
     } catch (error) {
       setMutationError(
-        getErrorMessage(error, "No pudimos actualizar la carrera."),
+        getErrorMessage(error, 'No pudimos actualizar la carrera.'),
       )
     } finally {
       setBusy(false)
@@ -102,7 +102,7 @@ export default function AdminCareersPage() {
         </div>
         <Button
           onClick={() => {
-            setMutationError("")
+            setMutationError('')
             setEditing(null)
           }}
         >
@@ -143,8 +143,8 @@ export default function AdminCareersPage() {
           icon={<GraduationCap />}
           title={
             careers.length
-              ? "No encontramos coincidencias"
-              : "No hay carreras registradas"
+              ? 'No encontramos coincidencias'
+              : 'No hay carreras registradas'
           }
           text="Crea una carrera o ajusta los filtros para consultar el catálogo."
         />
@@ -160,16 +160,16 @@ export default function AdminCareersPage() {
               <div className="table-row career-row" key={career.id}>
                 <strong>{career.name}</strong>
                 <span>
-                  <Badge tone={career.active ? "success" : "neutral"}>
-                    {career.active ? "Activo" : "Inactivo"}
+                  <Badge tone={career.active ? 'success' : 'neutral'}>
+                    {career.active ? 'Activo' : 'Inactivo'}
                   </Badge>
                 </span>
-                <div className="row-actions">
+                <div className="career-actions">
                   <Button
                     variant="ghost"
                     disabled={busy}
                     onClick={() => {
-                      setMutationError("")
+                      setMutationError('')
                       setEditing(career)
                     }}
                   >
@@ -179,12 +179,12 @@ export default function AdminCareersPage() {
                     variant="secondary"
                     disabled={busy}
                     onClick={() => {
-                      setMutationError("")
+                      setMutationError('')
                       if (career.active) setDeactivating(career)
                       else void changeStatus(career, true)
                     }}
                   >
-                    {career.active ? "Desactivar" : "Reactivar"}
+                    {career.active ? 'Desactivar' : 'Reactivar'}
                   </Button>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function AdminCareersPage() {
       )}
       <Modal
         open={editing !== undefined}
-        title={editing ? "Editar carrera" : "Nueva carrera"}
+        title={editing ? 'Editar carrera' : 'Nueva carrera'}
         busy={busy}
         onClose={() => setEditing(undefined)}
         actions={
@@ -207,13 +207,13 @@ export default function AdminCareersPage() {
               Cancelar
             </Button>
             <Button type="submit" form="career-form" loading={busy}>
-              {editing ? "Guardar cambios" : "Crear carrera"}
+              {editing ? 'Guardar cambios' : 'Crear carrera'}
             </Button>
           </>
         }
       >
         <CareerForm
-          key={editing?.id || "new"}
+          key={editing?.id || 'new'}
           initialName={editing?.name}
           disabled={busy}
           error={mutationError}
