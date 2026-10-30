@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+model Role {
+  id Int @id @map("id_rol") @db.SmallInt
+  name String @unique(map: "uk_rol_nombre") @map("nombre") @db.VarChar(20)
+  users User[]
+  @@map("rol")
+}
+model User {
+  id Int @id @default(autoincrement()) @map("id_usuario")
+  roleId Int @map("id_rol") @db.SmallInt
+  email String @unique(map: "uk_usuario_correo") @map("correo") @db.VarChar(150)
+  passwordHash String @map("password_hash") @db.VarChar(255)
+  active Boolean @default(true) @map("activo")
+  registeredAt DateTime @default(now()) @map("fecha_registro") @db.Timestamptz
+  emailVerified Boolean @default(false) @map("correo_verificado")
+  name String @default("") @map("nombre") @db.VarChar(150)
+  role Role @relation(fields: [roleId], references: [id])
+  student Student?
+  company Company?
+  sessions Session[]
+  verifications Verification[]
+  files StoredFile[]
+  resolutions Company[] @relation("Resolver")
+  @@index([roleId], map: "idx_usuario_id_rol")
+  @@map("usuario")
+}
+model Career {
+  id Int @id @default(autoincrement()) @map("id_carrera")
+  name String @unique(map: "uk_carrera_nombre") @map("nombre") @db.VarChar(120)
+  students Student[]
+  opportunities OpportunityCareer[]
+  @@map("carrera")
+}
+model Student {
+  id Int @id @default(autoincrement()) @map("id_estudiante")
+  userId Int @unique(map: "estudiante_id_usuario_key") @map("id_usuario")
+  careerId Int @map("id_carrera")
+  name String @map("nombre") @db.VarChar(80)
+  surnames String @default("") @map("apellidos") @db.VarChar(100)
+  matricula String @unique(map: "uk_estudiante_matricula") @db.VarChar(20)
+  phone String? @map("telefono") @db.VarChar(30)
+  university String @default("Universidad Autónoma de Sinaloa") @map("universidad") @db.VarChar(120)
+  bio String? @map("biografia")
+  legacyPhotoKey String? @map("foto_s3_key") @db.VarChar(255)
+  legacyCvKey String? @map("cv_s3_key") @db.VarChar(255)
+  cvUpdatedAt DateTime? @map("cv_actualizado_en") @db.Timestamptz
+  photoId String? @map("id_foto")
+  cvId String? @map("id_cv")
+  photo StoredFile? @relation("Photo", fields: [photoId], references: [id])
+  cv StoredFile? @relation("CV", fields: [cvId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  career Career @relation(fields: [careerId], references: [id])
+  applications Application[]
+  @@index([careerId], map: "idx_estudiante_id_carrera")
+  @@map("estudiante")
+}
+model Company {
+  id Int @id @default(autoincrement()) @map("id_empresa")
+  userId Int @unique(map: "empresa_id_usuario_key") @map("id_usuario")
+  name String @map("razon_social") @db.VarChar(150)
+  rfc String @unique(map: "uk_empresa_rfc") @db.VarChar(13)
+  bio String? @map("descripcion")
+  giro String? @db.VarChar(100)
+  phone String? @map("telefono") @db.VarChar(30)
+  address String? @map("direccion") @db.VarChar(255)
+  contact String? @map("correo_contacto") @db.VarChar(150)
+  hasUasAgreement Boolean @default(false) @map("tiene_convenio")
+  legacyLogoKey String? @map("logo_s3_key") @db.VarChar(255)
+  logoId String? @map("id_logo")
+  approvalStatus String @default("pending") @map("estado_aprobacion") @db.VarChar(10)
+  rejectionReason String? @map("motivo_rechazo")
+  resolvedAt DateTime? @map("resuelto_en") @db.Timestamptz
+  resolvedById Int? @map("resuelto_por")
+  resolver User? @relation("Resolver", fields: [resolvedById], references: [id])
+  logo StoredFile? @relation("Logo", fields: [logoId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  opportunities Opportunity[]
+  @@map("empresa")
+}
+model Opportunity {
+  id Int @id @default(autoincrement()) @map("id_convocatoria")
+  companyId Int @map("id_empresa")
+  title String @map("titulo") @db.VarChar(150)
+  description String @default("") @map("descripcion")
+  area String @default("") @db.VarChar(120)
+  slots Int @default(0) @map("cupos")
+  contactName String @default("") @map("contacto_nombre") @db.VarChar(100)
+  contactEmail String @default("") @map("contacto_correo") @db.VarChar(150)
+  contactPhone String? @map("contacto_telefono") @db.VarChar(30)
+  status String @default("BORRADOR") @map("estado") @db.VarChar(10)
+  publishedAt DateTime? @map("fecha_publicacion") @db.Timestamptz
+  closingDate DateTime? @map("fecha_limite") @db.Date
+  closedAt DateTime? @map("fecha_cierre") @db.Timestamptz
+  company Company @relation(fields: [companyId], references: [id])
+  careers OpportunityCareer[]
+  applications Application[]
+  @@index([companyId], map: "idx_convocatoria_id_empresa")
+  @@index([status], map: "idx_convocatoria_estado")
+  @@map("convocatoria")
+}
+model OpportunityCareer {
+  opportunityId Int @map("id_convocatoria")
+  careerId Int @map("id_carrera")
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id])
+  career Career @relation(fields: [careerId], references: [id])
+  @@id([opportunityId, careerId], map: "pk_convocatoria_carrera")
+  @@index([careerId], map: "idx_convcar_id_carrera")
+  @@map("convocatoria_carrera")
+}
+model Application {
+  id Int @id @default(autoincrement()) @map("id_postulacion")
+  opportunityId Int @map("id_convocatoria")
+  studentId Int @map("id_estudiante")
+  legacyCvKey String @default("") @map("cv_s3_key") @db.VarChar(255)
+  cvId String? @map("id_cv")
+  opportunityTitle String @default("") @map("titulo_respaldo") @db.VarChar(150)
+  companyName String @default("") @map("empresa_respaldo") @db.VarChar(150)
+  status String @default("ENVIADA") @map("estado") @db.VarChar(12)
+  date DateTime @default(now()) @map("fecha_postulacion") @db.Timestamptz
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  cv StoredFile? @relation("ApplicationCV", fields: [cvId], references: [id])
+  @@unique([opportunityId, studentId], map: "uk_postulacion_conv_est")
+  @@index([studentId], map: "idx_postulacion_id_estudiante")
+  @@map("postulacion")
+}
+model StoredFile {
+  id String @id @default(uuid()) @map("id_archivo")
+  ownerId Int @map("id_usuario")
+  driver String @db.VarChar(10)
+  key String @unique @map("clave")
+  name String @map("nombre_original")
+  mime String @map("tipo")
+  size Int @map("tamano")
+  purpose String @map("proposito")
+  createdAt DateTime @default(now()) @map("creado_en") @db.Timestamptz
+  owner User @relation(fields: [ownerId], references: [id])
+  photos Student[] @relation("Photo")
+  cvs Student[] @relation("CV")
+  logos Company[] @relation("Logo")
+  applications Application[] @relation("ApplicationCV")
+  @@index([ownerId])
+  @@map("archivo")
+}
+model Session {
+  id String @id @default(uuid()) @map("id_sesion")
+  userId Int @map("id_usuario")
+  expiresAt DateTime @map("expira_en") @db.Timestamptz
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId])
+  @@map("sesion")
+}
+model Verification {
+  id String @id @default(uuid()) @map("id_verificacion")
+  userId Int @map("id_usuario")
+  hash String @unique
+  expiresAt DateTime @map("expira_en") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("creado_en") @db.Timestamptz
+  usedAt DateTime? @map("usado_en") @db.Timestamptz
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId])
+  @@map("verificacion_email")
+}

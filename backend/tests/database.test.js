@@ -1,0 +1,27 @@
+import { test, after } from 'node:test';
+import assert from 'node:assert/strict';
+import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
+import { assertTestDatabase } from '../src/config.js';
+import { createApp } from '../src/app.js';
+
+const prisma = new PrismaClient();
+after(() => prisma.$disconnect());
+test('rejects_application_database_as_test_target', () => {
+  assert.throws(() => assertTestDatabase('postgresql://u:p@localhost/bolsa_practicas', 'postgresql://u:p@localhost/bolsa_practicas'));
+  assert.throws(() => assertTestDatabase('postgresql://u:p@localhost/production', 'postgresql://u:p@localhost/bolsa_practicas'));
+});
+test('health_checks_database', async () => {
+  const app = createApp({ prisma, config: { origins: ['http://localhost:8443'] } });
+  const res = await request(app).get('/api/health');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.status, 'ok');
+});
+test('enforces_unique_profiles_and_applications', async () => {
+  const constraints = await prisma.$queryRaw`SELECT indexname AS conname FROM pg_indexes WHERE schemaname='public' AND indexdef LIKE 'CREATE UNIQUE%'`;
+  assert.ok(constraints.some(r => r.conname === 'estudiante_id_usuario_key'));
+  assert.ok(constraints.some(r => r.conname === 'empresa_id_usuario_key'));
+  assert.ok(constraints.some(r => r.conname === 'uk_postulacion_conv_est'));
+});
+
+

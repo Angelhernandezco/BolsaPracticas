@@ -1,6 +1,6 @@
 # Diseño de integración de Bolsa Prácticas
 
-Fecha: 2026-10-29. Estado: pendiente de aprobación del usuario.
+Fecha: 2026-10-29. Estado: aprobado por el usuario, incluida la aceptación de @uas.edu y @uas.edu.mx.
 
 ## Intención y alcance
 
@@ -32,7 +32,7 @@ El usuario eligió almacenamiento local con soporte configurable para S3. JWT en
 - Sesiones persistidas con identificador y expiración para poder revocar al cerrar sesión. El JWT referencia una sesión válida; logout la revoca y borra cookie. Rechazar mutaciones desde orígenes ajenos mediante validación de Origin y configuración de mismo origen; GET sin efectos de escritura de negocio.
 - /auth/session devuelve usuario seguro o 401 sin sesión. Conservar la distinción frontend entre visita anónima y sesión vencida. Login inválido no dispara redirección de expiración; 403 tampoco cierra sesión.
 - Registro público solo student/company; admin se crea mediante comando o semilla controlada con contraseña de configuración, nunca asignable por registro ni edición de perfil.
-- Estudiantes: dominio exacto @uas.edu, matrícula única, carrera existente y universidad fija Universidad Autónoma de Sinaloa. Mantener esta decisión explícita aunque el frontend original usaba @uas.edu.mx.
+- Estudiantes: aceptar cualquiera de los dominios exactos @uas.edu o @uas.edu.mx, normalizando espacios exteriores y mayúsculas; rechazar subdominios y sufijos adicionales. Aplicar la misma regla en validaciones, mensajes y ejemplos del frontend y backend. Matrícula única, carrera existente y universidad fija Universidad Autónoma de Sinaloa.
 - Empresas: RFC de formato válido y único, giro y dirección. Correo verificado y aprobación obligatorios para panel y API empresarial. Pendientes/rechazadas solo consultan sesión, verifican correo y cierran sesión.
 - Estudiante verificado accede a convocatorias y sus propias postulaciones; empresa aprobada solo administra sus convocatorias y candidatos. Admin solo consulta empresas y cantidades, resuelve solicitudes y edita convenio; no puede consultar CV, estudiantes ni administrar convocatorias.
 - No permitir cambiar rol, correo, verificación, convenio o aprobación mediante actualización genérica del perfil. Limitar tamaño de cuerpos, validar archivos y limitar intentos de login y reenvío.
@@ -98,6 +98,7 @@ El usuario eligió almacenamiento local con soporte configurable para S3. JWT en
 
 - Backend: pruebas con base PostgreSQL de pruebas separada (bolsa_practicas_test o URL explícita), nunca borrar datos de la base de usuario. Probar registro, login/logout/expiración, correo, aprobación/rechazo, convenio, borradores/publicación/cierre/reactivación, postulación única, historial y archivos autorizados.
 - Casos negativos: manipular rol/convenio/aprobación desde perfil, acceder a convocatorias/candidatos ajenos, CV ajeno, admin consultando CV, empresa pendiente o usuario sin verificar, archivo inválido/excesivo, token inválido/vencido y fechas al límite de Mazatlán.
+- Correo estudiantil: probar registro con @uas.edu y @uas.edu.mx, normalización de mayúsculas/espacios exteriores y rechazo de dominios distintos, subdominios y sufijos como @uas.edu.mx.otro.com.
 - Pruebas de integración con persistencia real y transporte de correo de prueba. S3 con cliente simulado para verificar comandos/claves/permisos sin credenciales AWS; no afirmar prueba real de S3 sin bucket configurado.
 - Frontend: compilación y comprobación TypeScript; pruebas navegador de los tres roles, registro/verificación, aprobación, convenio visible, CV, publicar/postular/cambiar estado/cerrar y persistencia tras recarga. Simular fallos de red/401 para comprobar reintento y sesión vencida.
 - Inspección visual de portada, avisos de éxito/error y ficha de revisión en escritorio y móvil; confirmar botones visibles y espaciado. Usar transporte de pruebas para tokens en pruebas automatizadas, nunca bypass de verificación en API normal.

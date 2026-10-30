@@ -1,0 +1,35 @@
+{
+  "name": "bolsa-practicas-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/server.js",
+    "start": "node --env-file=.env src/server.js",
+    "test": "node --env-file=.env.test --test --test-concurrency=1 tests/*.test.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "node --env-file=.env prisma/seed.js",
+    "db:inspect": "node --env-file=.env scripts/inspect-db.js",
+    "mail:check": "node --env-file=.env scripts/check-mail.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.900.0",
+    "@prisma/client": "6.19.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "figma-make-app": "file:..",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "prisma": "6.19.0",
+    "supertest": "^7.1.0"
+  }
+}
