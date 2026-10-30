@@ -41,7 +41,7 @@ test("verify and approve company through administrator", async ({
   await page.goto("/registro?rol=company")
   await page.getByLabel("Nombre o razón social", { exact: true }).fill(name)
   await page.getByLabel("Correo electrónico", { exact: true }).fill(email)
-  await page.getByLabel(/^RFC/).fill(`TST210101${id.slice(-3)}`)
+  await page.getByLabel(/^RFC/).fill(`TST${id.slice(-9)}`)
   await page.getByLabel("Giro", { exact: true }).fill("Tecnología")
   await page
     .getByLabel("Dirección", { exact: true })
@@ -61,7 +61,7 @@ test("verify and approve company through administrator", async ({
   const card = admin.locator(".candidate-card").filter({ hasText: name })
   await card.getByRole("button", { name: "Abrir ficha de revisión" }).click()
   const dialog = admin.getByRole("dialog")
-  await dialog.getByRole("checkbox").check()
+  await dialog.getByLabel("Fecha inicial del convenio",{exact:true}).fill("2026-01-01"); await dialog.getByLabel("Fecha final del convenio",{exact:true}).fill("2027-12-31")
   await dialog
     .getByRole("button", { name: "Guardar convenio", exact: true })
     .click()
@@ -125,7 +125,7 @@ test("publish upload apply review close and retain history", async ({
     "demo-cv.pdf",
   )
   await student.goto(`/estudiante/convocatorias/${id}`)
-  await expect(student.getByText(/Sin convenio con la UAS/)).toBeVisible()
+  await expect(student.getByText("Sin convenio", {exact:true})).toBeVisible()
   await student.getByRole("button", { name: /Postularme ahora/ }).click()
   await expect(
     student.getByText("Postulación registrada", { exact: true }),

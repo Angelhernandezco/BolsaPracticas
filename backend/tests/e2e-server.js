@@ -53,6 +53,7 @@ for (const [email, roleId] of [
 }
 await mkdir("backend/storage-test", { recursive: true })
 const mailer = {
+  async sendCompanyApproval(message) { await appendFile('backend/storage-test/e2e-outbox.jsonl',JSON.stringify({...message,type:'approval'})+'\n'); },
   async sendVerification(m) {
     await appendFile(
       "backend/storage-test/e2e-outbox.jsonl",

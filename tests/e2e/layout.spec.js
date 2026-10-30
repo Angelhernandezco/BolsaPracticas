@@ -28,7 +28,7 @@ for (const viewport of [
         name,
         email,
         password,
-        rfc: `LYT210101${id.slice(-3)}`,
+        rfc: `LYT${id.slice(-9)}`,
         giro: "Servicios y tecnología",
         address:
           "Dirección larga para revisar ajuste de textos y accesibilidad en pantallas de poca altura ".repeat(
@@ -50,7 +50,7 @@ for (const viewport of [
       .getByRole("button", { name: "Abrir ficha de revisión" })
       .click()
     const dialog = page.getByRole("dialog")
-    await dialog.getByRole("checkbox").check()
+    await dialog.getByLabel("Fecha inicial del convenio",{exact:true}).fill("2026-01-01"); await dialog.getByLabel("Fecha final del convenio",{exact:true}).fill("2027-12-31")
     await dialog
       .getByRole("button", { name: "Guardar convenio", exact: true })
       .click()

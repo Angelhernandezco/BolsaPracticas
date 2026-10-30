@@ -19,5 +19,5 @@ test('decision_and_dates_are_atomic',async()=>{
   const base={agreementStartDate:'2026-10-01',agreementEndDate:'2026-11-01'};
   await s.admin.post(`/api/admin/companies/${s.user.id}/decision`).send({...base,decision:'rejected',reason:''}).expect(422);
   assert.equal((await prisma.company.findUnique({where:{id:s.user.company.id}})).agreementStartDate,null);
-  const approved=await s.admin.post(`/api/admin/companies/${s.user.id}/decision`).send({...base,decision:'approved'}).expect(200);assert.equal(approved.body.agreementStartDate,base.agreementStartDate);assert.equal(approved.body.approvalNotification.status,'pending');
+  const approved=await s.admin.post(`/api/admin/companies/${s.user.id}/decision`).send({...base,decision:'approved'}).expect(200);assert.equal(approved.body.agreementStartDate,base.agreementStartDate);assert.equal(approved.body.approvalNotification.status,'sent');
 });

@@ -19,6 +19,7 @@ export function setup() {
   const outbox = []
   const config = loadConfig(process.env)
   const mailer = {
+    async sendCompanyApproval(message) { outbox.push({...message,type:'approval'}); },
     async sendVerification(message) {
       outbox.push(message)
     },
