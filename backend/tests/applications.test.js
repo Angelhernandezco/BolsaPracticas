@@ -1,0 +1,34 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { setup,account,login,prisma } from './helpers.js';
+const input={title:'Vacante',description:'Descripción de vacante',area:'Software',slots:2,contactName:'Contacto',contactEmail:'contacto@example.com',careerIds:['Ingeniería en Software'],closingDate:'2026-11-20',intent:'publish'};
+const pdf=Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF');
+async function fixtures(){const s=setup(),c=await account('company'),u=await account(),company=s.agent(),student=s.agent();await login(company,c);await login(student,u);
+  const o=(await company.post('/api/company/opportunities').send(input).expect(201)).body;
+  const cv=(await student.post('/api/students/cv').attach('file',pdf,'first.pdf').expect(200)).body;
+  return {...s,c,u,company,student,o,cv};}
+test('duplicate_and_close_races_are_consistent',async()=>{
+  const s=await fixtures();const res=await Promise.all([s.student.post('/api/applications').send({opportunityId:s.o.id}),s.student.post('/api/applications').send({opportunityId:s.o.id})]);assert.deepEqual(res.map(r=>r.status).sort(),[201,409]);
+  const u2=await account(),a=s.agent();await login(a,u2);await a.post('/api/students/cv').attach('file',pdf,'second.pdf');
+  const race=await Promise.all([s.company.post(`/api/company/opportunities/${s.o.id}/close`),a.post('/api/applications').send({opportunityId:s.o.id})]);assert.equal(race[0].status,200);assert.ok([201,422].includes(race[1].status));
+  await a.post('/api/applications').send({opportunityId:s.o.id}).expect(422);
+});
+test('cv_snapshot_survives_replacement',async()=>{
+  const s=await fixtures();await s.student.post('/api/applications').send({opportunityId:s.o.id}).expect(201);
+  const replacement=await s.student.post('/api/students/cv').attach('file',Buffer.concat([pdf,Buffer.from('\nnew')]),'new.pdf').expect(200);
+  const candidates=await s.company.get(`/api/company/opportunities/${s.o.id}/candidates`).expect(200);assert.equal(candidates.body[0].cvName,'first.pdf');
+  const file=await s.company.get(candidates.body[0].cvUrl).expect(200);assert.deepEqual(file.body,pdf);
+  await s.company.get(replacement.body.cvUrl).expect(403);
+});
+test('closed_opportunity_keeps_history_and_status_updates_require_owner',async()=>{
+  const s=await fixtures();const app=(await s.student.post('/api/applications').send({opportunityId:s.o.id}).expect(201)).body;
+  const other=s.agent();await login(other,await account('company'));await other.patch(`/api/company/opportunities/${s.o.id}/applications/${app.id}/status`).send({status:'ACEPTADA'}).expect(403);
+  await s.company.patch(`/api/company/opportunities/${s.o.id}/applications/${app.id}/status`).send({status:'ACEPTADA'}).expect(200);
+  await s.company.post(`/api/company/opportunities/${s.o.id}/close`).expect(200);
+  const history=await s.student.get('/api/applications/me').expect(200);assert.equal(history.body[0].opportunityTitle,'Vacante');assert.equal(history.body[0].companyName,s.c.name);assert.equal(history.body[0].opportunityStatus,'closed');assert.equal(history.body[0].status,'ACEPTADA');
+  assert.equal((await s.student.get(`/api/opportunities/${s.o.id}`)).body.slots,2);
+});
+test('profile_states_are_enforced',async()=>{
+  const s=await fixtures();await prisma.user.update({where:{id:s.u.id},data:{emailVerified:false}});await s.student.get('/api/opportunities').expect(403);await s.student.post('/api/applications').send({opportunityId:s.o.id}).expect(403);
+  await prisma.company.update({where:{id:s.c.company.id},data:{approvalStatus:'pending'}});await s.company.get('/api/opportunities?all=true').expect(403);
+});

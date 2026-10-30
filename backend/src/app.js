@@ -10,6 +10,8 @@ import { createStorage } from './services/storage/index.js';
 import { profileRoutes } from './modules/profiles/routes.js';
 import { filesRoutes } from './modules/files/routes.js';
 import { adminRoutes } from './modules/admin/routes.js';
+import { opportunitiesRoutes } from './modules/opportunities/routes.js';
+import { applicationsRoutes } from './modules/applications/routes.js';
 export function createApp({ prisma,config={},clock=()=>new Date(),mailer,storage }) {
   const app = express();
   app.disable('x-powered-by'); installSecurity(app,config);
@@ -22,6 +24,7 @@ export function createApp({ prisma,config={},clock=()=>new Date(),mailer,storage
   app.use('/api/auth',authRoutes(ctx));app.use('/api/catalogs',catalogRoutes(ctx));
   app.use('/api',profileRoutes(ctx));app.use('/api',filesRoutes(ctx));
   app.use('/api/admin',adminRoutes(ctx));
+  app.use('/api',applicationsRoutes(ctx));app.use('/api',opportunitiesRoutes(ctx));
   app.use((_req,_res,next)=>next(notFound()));app.use(errorHandler);
   return app;
 }
