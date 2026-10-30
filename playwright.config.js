@@ -20,7 +20,7 @@ export default defineConfig({
       timeout: 30000,
     },
     {
-      command: "node node_modules/vite/bin/vite.js --port 8444",
+      command: "npm --prefix frontend run dev -- --port 8444",
       url: "http://localhost:8444",
       env: {
         PORT: "8444",

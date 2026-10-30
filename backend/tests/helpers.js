@@ -44,7 +44,7 @@ export function registration(role = "student", extra = {}) {
     password,
     matricula: suffix,
     career: "Ingeniería en Software",
-    rfc: `TST210101${suffix.slice(0, 3).toUpperCase()}`,
+    rfc: `TST${String(parseInt(suffix.slice(0, 6), 16) % 1000000).padStart(6, "0")}${suffix.slice(-3).toUpperCase()}`,
     giro: "Tecnología",
     address: "Calle de pruebas 123",
     ...extra,

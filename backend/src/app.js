@@ -47,7 +47,7 @@ export function createApp({
   app.use("/api", opportunitiesRoutes(ctx))
   app.use("/api", (_req, _res, next) => next(notFound()))
   if (config.serveFrontend) {
-    const dist = path.resolve(backendRoot, "../dist")
+    const dist = path.resolve(backendRoot, "../frontend/dist")
     app.use(express.static(dist))
     app.get("/{*page}", (_req, res) =>
       res.sendFile(path.join(dist, "index.html")),

@@ -115,7 +115,7 @@ test("publish upload apply review close and retain history", async ({
     student = await context.newPage()
   await login(student)
   await student.goto("/estudiante/curriculum")
-  await student.locator("input[type=file]").setInputFiles("public/demo-cv.pdf")
+  await student.locator("input[type=file]").setInputFiles("frontend/public/demo-cv.pdf")
   await student.getByRole("button", { name: "Guardar currículum" }).click()
   await expect(
     student.getByText("Tu currículum se actualizó correctamente."),

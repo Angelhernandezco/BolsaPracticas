@@ -4,6 +4,7 @@ import request from "supertest"
 import { PrismaClient } from "@prisma/client"
 import { assertTestDatabase } from "../src/config.js"
 import { createApp } from "../src/app.js"
+import { existsSync } from "node:fs"
 
 const prisma = new PrismaClient()
 after(() => prisma.$disconnect())
@@ -46,4 +47,11 @@ test("optional_frontend_hosting_does_not_shadow_api", async () => {
   const res = await request(app).get("/api/unknown")
   assert.notEqual(res.status, 200)
   assert.match(res.headers["content-type"], /json/)
+})
+test("frontend_package_build_and_static_routes_work",async()=>{
+  assert.ok(existsSync(new URL('../../frontend/dist/index.html',import.meta.url)), 'El build debe existir dentro de frontend/dist');
+  const app=createApp({prisma,config:{origins:[],serveFrontend:true}});
+  await request(app).get('/registro').expect('Content-Type',/html/).expect(200);
+  await request(app).get('/demo-cv.pdf').expect('Content-Type',/application\/pdf/).expect(200);
+  await request(app).get('/api/health').expect('Content-Type',/json/).expect(200);
 })

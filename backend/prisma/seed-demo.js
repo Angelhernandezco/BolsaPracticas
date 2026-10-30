@@ -151,7 +151,7 @@ try {
 
         {
           buffer: await readFile(
-            new URL("../../public/demo-cv.pdf", import.meta.url),
+            new URL("../../frontend/public/demo-cv.pdf", import.meta.url),
           ),
 
           originalname: "CV_Mariana_Lopez.pdf",
