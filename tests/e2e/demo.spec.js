@@ -63,7 +63,7 @@ test('demo_registration_and_profiles_use_mutable_catalog_and_stable_ids', async 
       name: 'Estudiante Demo',
       email: 'nueva-carrera@uas.edu',
       password: 'Demo1234',
-      matricula: 'DEMO-NEW',
+      matricula: '2026000101',
       career: career.name,
     }
     const registered = await api.register(input)
@@ -80,7 +80,7 @@ test('demo_registration_and_profiles_use_mutable_catalog_and_stable_ids', async 
       await api.register({
         ...input,
         email: 'otra-carrera@uas.edu',
-        matricula: 'DEMO-OTHER',
+        matricula: '2026000102',
         career: 'Nombre actualizado',
       })
     } catch (error) {

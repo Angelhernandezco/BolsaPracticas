@@ -13,6 +13,18 @@ export function loadConfig(env = process.env) {
       'Configura DATABASE_URL y JWT_SECRET (mínimo 32 caracteres).',
     )
   const frontendUrl = env.FRONTEND_URL || 'http://localhost:8443'
+  if (
+    env.TRUST_PROXY !== undefined &&
+    !['false', '1'].includes(env.TRUST_PROXY)
+  )
+    throw new Error(
+      'TRUST_PROXY debe ser false o 1 (un único proxy de confianza).',
+    )
+  if (
+    env.COOKIE_SECURE !== undefined &&
+    !['true', 'false'].includes(env.COOKIE_SECURE)
+  )
+    throw new Error('COOKIE_SECURE debe ser true o false.')
   return {
     databaseUrl: env.DATABASE_URL,
     jwtSecret: env.JWT_SECRET,
@@ -21,7 +33,12 @@ export function loadConfig(env = process.env) {
       new URL(frontendUrl).origin,
       ...(env.ALLOWED_ORIGINS || '').split(',').filter(Boolean),
     ],
-    secure: env.NODE_ENV === 'production',
+    secure:
+      env.COOKIE_SECURE === undefined
+        ? env.NODE_ENV === 'production'
+        : env.COOKIE_SECURE === 'true',
+    host: env.HOST || '127.0.0.1',
+    trustProxy: env.TRUST_PROXY === '1' ? 1 : false,
     port: Number(env.PORT || 3001),
     storageDriver: env.STORAGE_DRIVER || 'local',
     storageDir: path.resolve(backendRoot, env.STORAGE_LOCAL_DIR || 'storage'),

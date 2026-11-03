@@ -1,5 +1,19 @@
 # Backend de Bolsa Prácticas
 
+## Contenedores y validación
+
+Consulta [la guía Docker y BD](../docs/docker.md) para construir las imágenes,
+ejecutar Compose y actualizar una BD existente con respaldo. `HOST` configura la
+interfaz de escucha; `COOKIE_SECURE` acepta únicamente `true` o `false` y conserva
+Secure por defecto en producción. No se implementan DB_* ni JWT_EXPIRES_IN: Prisma
+usa DATABASE_URL y las sesiones duran ocho horas.
+
+Registro y perfiles comparten validadores: teléfono opcional de 10 dígitos,
+matrícula de 1 a 20 dígitos (texto con ceros iniciales) y RFC físico/moral de
+13/12 caracteres con fecha AAMMDD válida. Las semillas y el SQL de instalación
+se actualizaron a formatos válidos; estos cambios no requieren nuevas columnas
+ni migraciones y no corrigen registros históricos automáticamente.
+
 Express en JavaScript ESM, Prisma 6.19 y PostgreSQL. El frontend React/TypeScript de Figma conserva sus rutas y flujos. Node 22.16 o superior de la serie 22.
 
 ## Arranque local

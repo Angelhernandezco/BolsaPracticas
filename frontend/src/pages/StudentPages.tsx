@@ -30,6 +30,7 @@ import {
   Title,
 } from '../components/ui'
 import { api, getErrorMessage } from '../services/api'
+import { matriculaError, phoneError } from '../lib/registration-validation'
 import type { Application, Opportunity, CareerDto } from '../types'
 
 function DashboardHeader({
@@ -477,6 +478,9 @@ export function StudentProfile() {
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     if (saving) return
+    const formatError =
+      matriculaError(form.matricula || '') || phoneError(form.phone || '')
+    if (formatError) return setMessage(formatError)
     setSaving(true)
     setMessage('')
     try {
@@ -552,6 +556,8 @@ export function StudentProfile() {
             </Field>
             <Field label="Matrícula">
               <Input
+                inputMode="numeric"
+                maxLength={20}
                 value={form.matricula || ''}
                 onChange={(event) => set('matricula', event.target.value)}
                 required
@@ -592,6 +598,10 @@ export function StudentProfile() {
             </Field>
             <Field label="Teléfono">
               <Input
+                type="tel"
+                placeholder="10 dígitos, sin espacios ni guiones"
+                inputMode="numeric"
+                maxLength={10}
                 value={form.phone || ''}
                 onChange={(event) => set('phone', event.target.value)}
               />

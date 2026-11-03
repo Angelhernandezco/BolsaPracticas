@@ -83,7 +83,7 @@
       "matricula": "2023001842",
       "university": "Universidad Autónoma de Sinaloa",
       "career": "Ingeniería en Software",
-      "phone": "668 123 4567",
+      "phone": "6681234567",
       "bio": "Estudiante interesada en desarrollo frontend y productos digitales.",
       "cvName": "CV_Mariana_Lopez.pdf",
       "cvUpdatedAt": "2026-10-01",
@@ -113,7 +113,7 @@
       "approvalStatus": "approved",
       "rfc": "NDI210315AB1",
       "contact": "talento@nebuladigital.mx",
-      "phone": "668 246 8024",
+      "phone": "6682468024",
       "bio": "Creamos productos digitales útiles para organizaciones en crecimiento.",
       "giro": "Tecnologías de la información",
       "address": "Blvd. Centenario 850, Los Mochis, Sinaloa",
@@ -145,7 +145,7 @@
       "rfc": "CDE190822CD3",
       "giro": "Construcción",
       "address": "Río Fuerte 412, Los Mochis, Sinaloa",
-      "phone": "668 222 1144",
+      "phone": "6682221144",
       "bio": "Empresa regional de construcción e infraestructura.",
       "passwordKey": "demo",
       "agreementOffsets": null
@@ -214,12 +214,12 @@
       "cvUrl": "/demo-cv.pdf",
       "initials": "CM",
       "email": "carlos.mendoza@uas.edu",
-      "phone": "668 234 5678",
+      "phone": "6682345678",
       "bio": "Interesado en aseguramiento de calidad y automatización.",
       "role": "student",
       "emailVerified": true,
       "registeredAt": "2026-09-01",
-      "matricula": "DEMO-student-2",
+      "matricula": "2023001843",
       "university": "Universidad Autónoma de Sinaloa",
       "passwordKey": "demo",
       "fileKey": "d0000000-0000-4000-8000-000000000010"
@@ -234,12 +234,12 @@
       "cvUrl": "/demo-cv.pdf",
       "initials": "AR",
       "email": "ana.ruiz@uas.edu",
-      "phone": "668 345 6789",
+      "phone": "6683456789",
       "bio": "Diseñadora enfocada en experiencias digitales accesibles.",
       "role": "student",
       "emailVerified": true,
       "registeredAt": "2026-09-01",
-      "matricula": "DEMO-student-3",
+      "matricula": "2023001844",
       "university": "Universidad Autónoma de Sinaloa",
       "passwordKey": "demo",
       "fileKey": "d0000000-0000-4000-8000-000000000011"
@@ -260,7 +260,7 @@
       "email": "e2e-company@example.com",
       "emailVerified": true,
       "registeredAt": "2026-10-01",
-      "rfc": "E2E210101ABC",
+      "rfc": "EPE210101ABC",
       "giro": "Tecnología",
       "address": "Dirección E2E",
       "approvalStatus": "approved",
@@ -273,7 +273,7 @@
       "email": "e2e-student@uas.edu",
       "emailVerified": true,
       "registeredAt": "2026-10-01",
-      "matricula": "e2e-student",
+      "matricula": "2026000099",
       "career": "Ingeniería en Software",
       "passwordKey": "e2e"
     }
@@ -291,7 +291,7 @@
       "contact": "talento@nebuladigital.mx",
       "contactName": "Laura Mendoza",
       "contactEmail": "talento@nebuladigital.mx",
-      "contactPhone": "668 246 8024",
+      "contactPhone": "6682468024",
       "careerIds": ["Ingeniería en Software", "Ingeniería Informática"],
       "closingDate": "offset:30",
       "timezone": "America/Mazatlan",
@@ -467,7 +467,7 @@
       "cvUrl": "/demo-cv.pdf",
       "initials": "ML",
       "email": "mariana.lopez@uas.edu",
-      "phone": "668 123 4567",
+      "phone": "6681234567",
       "bio": "Estudiante interesada en desarrollo frontend y productos digitales."
     },
     {
@@ -480,7 +480,7 @@
       "cvUrl": "/demo-cv.pdf",
       "initials": "CM",
       "email": "carlos.mendoza@uas.edu",
-      "phone": "668 234 5678",
+      "phone": "6682345678",
       "bio": "Interesado en aseguramiento de calidad y automatización."
     },
     {
@@ -493,7 +493,7 @@
       "cvUrl": "/demo-cv.pdf",
       "initials": "AR",
       "email": "ana.ruiz@uas.edu",
-      "phone": "668 345 6789",
+      "phone": "6683456789",
       "bio": "Diseñadora enfocada en experiencias digitales accesibles."
     }
   ]

@@ -1,7 +1,13 @@
 import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 
-import { login, password, verificationUrl, unique } from './fixtures.js'
+import {
+  login,
+  password,
+  verificationUrl,
+  unique,
+  companyRfc,
+} from './fixtures.js'
 
 for (const domain of ['uas.edu', 'uas.edu.mx', 'ms.uas.edu.mx'])
   test(`register and verify ${domain}`, async ({ page }) => {
@@ -24,10 +30,21 @@ for (const domain of ['uas.edu', 'uas.edu.mx', 'ms.uas.edu.mx'])
     await expect(page).toHaveURL(/verificar-correo/)
     await expect(page.getByText('Abrir enlace de demostración')).toHaveCount(0)
 
-    await page.goto(await verificationUrl(email))
+    const verificationLink = await verificationUrl(email)
+    let verificationRequests = 0
+    page.on('request', (req) => {
+      if (req.url().endsWith('/api/auth/email/verify')) verificationRequests++
+    })
+    await page.goto(verificationLink)
     await expect(
-      page.getByRole('heading', { name: /Correo (ya )?verificado/ }),
+      page.getByRole('heading', { name: 'Correo verificado', exact: true }),
     ).toBeVisible()
+    expect(verificationRequests).toBe(1)
+    await page.goto(verificationLink)
+    await expect(
+      page.getByRole('heading', { name: 'Correo ya verificado', exact: true }),
+    ).toBeVisible()
+    expect(verificationRequests).toBe(2)
     await page.getByRole('link', { name: 'Continuar', exact: true }).click()
     await expect(page).toHaveURL(/estudiante$/)
   })
@@ -42,7 +59,7 @@ test('verify and approve company through administrator', async ({
   await page.goto('/registro?rol=company')
   await page.getByLabel('Nombre o razón social', { exact: true }).fill(name)
   await page.getByLabel('Correo electrónico', { exact: true }).fill(email)
-  await page.getByLabel(/^RFC/).fill(`TST${id.slice(-9)}`)
+  await page.getByLabel(/^RFC/).fill(companyRfc())
   await page.getByLabel('Giro', { exact: true }).fill('Tecnología')
   await page
     .getByLabel('Dirección', { exact: true })

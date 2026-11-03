@@ -6,7 +6,7 @@ const config = loadConfig(),
 await prisma.$connect()
 const server = createApp({ prisma, config }).listen(
   config.port,
-  '127.0.0.1',
+  config.host,
   () =>
     console.log(`Backend disponible en http://localhost:${config.port}/api`),
 )

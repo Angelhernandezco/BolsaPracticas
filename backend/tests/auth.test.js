@@ -11,6 +11,80 @@ import {
 } from './helpers.js'
 import jwt from 'jsonwebtoken'
 import { createApp } from '../src/app.js'
+test('registration_api_enforces_formats_and_preserves_numeric_strings', async () => {
+  const s = setup()
+  for (const extra of [
+    { matricula: '2214150A' },
+    { phone: '668123456' },
+    { phone: '+526681234567' },
+    { rfc: 'ABC210231AB1' },
+  ]) {
+    await s
+      .agent()
+      .post('/api/auth/register')
+      .send(registration('student', extra))
+      .expect(422)
+  }
+  const input = registration('student', { phone: '6681234567' })
+  input.matricula = `00${input.matricula}`
+  const res = await s.agent().post('/api/auth/register').send(input).expect(201)
+  assert.equal(res.body.matricula, input.matricula)
+  assert.equal(res.body.phone, '6681234567')
+  for (const prefix of ['MOR', 'FISI']) {
+    const company = registration('company')
+    company.rfc = prefix + company.rfc.slice(3)
+    const created = await s
+      .agent()
+      .post('/api/auth/register')
+      .send(company)
+      .expect(201)
+    assert.equal(created.body.rfc, company.rfc)
+  }
+})
+
+test('profile_api_uses_the_same_formats_and_allows_clearing_optional_phone', async () => {
+  const s = setup()
+  for (const role of ['student', 'company']) {
+    const user = await account(role)
+    const agent = s.agent()
+    await login(agent, user)
+    const path =
+      role === 'student' ? '/api/students/profile' : '/api/companies/profile'
+    const valid =
+      role === 'student'
+        ? {
+            name: user.name,
+            matricula: user.student.matricula,
+            career: 'Ingeniería en Software',
+          }
+        : {
+            name: user.name,
+            rfc: user.company.rfc,
+            giro: 'Software',
+            address: 'Calle Prueba',
+          }
+    await agent
+      .put(path)
+      .send({ ...valid, phone: '668 123 4567' })
+      .expect(422)
+    await agent
+      .put(path)
+      .send({
+        ...valid,
+        ...(role === 'student'
+          ? { matricula: '22A' }
+          : { rfc: 'ABC210231AB1' }),
+      })
+      .expect(422)
+    for (const phone of ['6681234567', '', null]) {
+      const res = await agent
+        .put(path)
+        .send({ ...valid, phone })
+        .expect(200)
+      assert.equal(res.body.phone, phone)
+    }
+  }
+})
 test('accepts_allowed_exact_uas_domains', async () => {
   const s = setup()
   for (const domain of ['uas.edu', 'uas.edu.mx', 'ms.uas.edu.mx']) {

@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { login, password, unique, verificationUrl } from './fixtures.js'
+import {
+  login,
+  password,
+  unique,
+  verificationUrl,
+  companyRfc,
+} from './fixtures.js'
 test('homepage CTA has upper separation', async ({ page }, info) => {
   await page.goto('/')
   const cta = page.locator('.cta-section')
@@ -28,7 +34,7 @@ for (const viewport of [
         name,
         email,
         password,
-        rfc: `LYT${id.slice(-9)}`,
+        rfc: companyRfc('LYT'),
         giro: 'Servicios y tecnología',
         address:
           'Dirección larga para revisar ajuste de textos y accesibilidad en pantallas de poca altura '.repeat(

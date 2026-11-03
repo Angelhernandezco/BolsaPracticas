@@ -12,7 +12,12 @@ import {
   ShieldCheck,
   XCircle,
 } from 'lucide-react'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import {
+  matriculaError,
+  phoneError,
+  rfcError,
+} from '../lib/registration-validation'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
 import Logo from '../components/Logo'
 import {
@@ -240,11 +245,10 @@ export function RegisterPage() {
       return setError('Matrícula y carrera son obligatorias.')
     if (form.password !== form.confirm)
       return setError('Las contraseñas no coinciden.')
-    if (
-      role === 'company' &&
-      !/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(form.rfc.toUpperCase())
-    )
-      return setError('El RFC debe tener un formato válido.')
+    const formatError =
+      phoneError(form.phone) ||
+      (role === 'student' ? matriculaError(form.matricula) : rfcError(form.rfc))
+    if (formatError) return setError(formatError)
     setLoading(true)
     try {
       const input: RegistrationInput = { ...form, email, role }
@@ -356,6 +360,8 @@ export function RegisterPage() {
               <>
                 <Field label="Matrícula">
                   <Input
+                    inputMode="numeric"
+                    maxLength={20}
                     value={form.matricula}
                     onChange={(event) => set('matricula', event.target.value)}
                     required
@@ -402,6 +408,10 @@ export function RegisterPage() {
                 </Field>
                 <Field label="Teléfono">
                   <Input
+                    type="tel"
+                    placeholder="10 dígitos, sin espacios ni guiones"
+                    inputMode="numeric"
+                    maxLength={10}
                     value={form.phone}
                     onChange={(event) => set('phone', event.target.value)}
                   />
@@ -560,11 +570,23 @@ export function VerifyTokenPage() {
     VerificationResult | 'loading' | 'error'
   >('loading')
   const [attempt, setAttempt] = useState(0)
+  const verification = useRef<{
+    token: string
+    attempt: number
+    promise: ReturnType<typeof api.verifyEmail>
+  } | null>(null)
   useEffect(() => {
     let active = true
     setResult('loading')
-    api
-      .verifyEmail(token)
+    // StrictMode replays effects, but a token must only be consumed once per visit.
+    // Keep this operation in the component: a later visit must ask the server again.
+    if (
+      verification.current?.token !== token ||
+      verification.current.attempt !== attempt
+    ) {
+      verification.current = { token, attempt, promise: api.verifyEmail(token) }
+    }
+    verification.current.promise
       .then((response) => {
         if (!active) return
         setResult(response.result)

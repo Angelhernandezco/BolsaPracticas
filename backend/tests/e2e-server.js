@@ -18,7 +18,7 @@ for (const account of manifest.users.filter(
   const career = await prisma.career.findUniqueOrThrow({
     where: { seedKey: 'software' },
   })
-  await prisma.user.upsert({
+  const testUser = await prisma.user.upsert({
     where: { email: account.email },
     update: {},
     create: {
@@ -52,6 +52,18 @@ for (const account of manifest.users.filter(
           : {}),
     },
   })
+  // Upgrade only the old reserved test identifiers, never application users.
+  // This server is guarded by assertTestDatabase above and only runs in tests.
+  if (roleId === 1)
+    await prisma.student.updateMany({
+      where: { userId: testUser.id, matricula: 'e2e-student' },
+      data: { matricula: account.matricula },
+    })
+  if (roleId === 2)
+    await prisma.company.updateMany({
+      where: { userId: testUser.id, rfc: 'E2E210101ABC' },
+      data: { rfc: account.rfc },
+    })
 }
 await mkdir('backend/storage-test', { recursive: true })
 const mailer = {

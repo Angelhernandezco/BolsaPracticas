@@ -1,0 +1,88 @@
+name: bolsa-practicas
+
+x-api-environment: &api-environment
+  DATABASE_URL: ${DATABASE_URL:?Configura DATABASE_URL en docker/.env}
+  JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET en docker/.env}
+  NODE_ENV: production
+  HOST: 0.0.0.0
+  TRUST_PROXY: '1'
+  PORT: '3000'
+  FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+  COOKIE_SECURE: ${COOKIE_SECURE:-true}
+  STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+  STORAGE_LOCAL_DIR: storage
+  AWS_REGION: ${AWS_REGION:-us-west-2}
+  S3_BUCKET: ${S3_BUCKET:-}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+  AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+  EMAIL_HOST: ${EMAIL_HOST:-smtp.gmail.com}
+  EMAIL_PORT: ${EMAIL_PORT:-465}
+  EMAIL_USER: ${EMAIL_USER:-}
+  EMAIL_PASSWORD: ${EMAIL_PASSWORD:-}
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bolsa_practicas}
+      POSTGRES_USER: ${POSTGRES_USER:-bolsa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configura POSTGRES_PASSWORD en docker/.env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  migrate:
+    image: bolsapracticas-migrate:v1.0
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: migration
+    environment:
+      <<: *api-environment
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  backend:
+    image: bolsapracticas-backend:v1.0
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: runtime
+    environment: *api-environment
+    ports:
+      - '127.0.0.1:${BACKEND_PORT:-3000}:3000'
+    volumes:
+      - uploaded_files:/app/backend/storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: bolsapracticas-frontend:v1.0
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - '${FRONTEND_PORT:-8080}:80'
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  uploaded_files:

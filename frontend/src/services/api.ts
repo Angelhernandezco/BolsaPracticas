@@ -1,4 +1,9 @@
 import seedManifest from '../../../fixtures/seed-data.json'
+import {
+  matriculaError,
+  phoneError,
+  rfcError,
+} from '../lib/registration-validation'
 import { agreementDates, agreementDateError } from '../lib/agreements'
 import type {
   AgreementDates,
@@ -411,6 +416,18 @@ export const api = {
     return user
   },
   async register(input: RegistrationInput) {
+    const formatError =
+      phoneError(input.phone || '') ||
+      (input.role === 'student'
+        ? matriculaError(input.matricula || '')
+        : rfcError(input.rfc || ''))
+    if (formatError) throw new ApiError(formatError, 'validation', 422)
+    input = {
+      ...input,
+      phone: input.phone?.trim(),
+      matricula: input.matricula?.trim(),
+      rfc: input.rfc?.trim().toUpperCase(),
+    }
     if (!USE_DEMO) {
       const user = await request<User>(
         '/auth/register',
@@ -585,6 +602,20 @@ export const api = {
       .map((career) => career.name)
   },
   async updateProfile(user: User) {
+    const formatError =
+      phoneError(user.phone || '') ||
+      (user.role === 'student'
+        ? matriculaError(user.matricula || '')
+        : user.role === 'company'
+          ? rfcError(user.rfc || '')
+          : '')
+    if (formatError) throw new ApiError(formatError, 'validation', 422)
+    user = {
+      ...user,
+      phone: user.phone?.trim(),
+      matricula: user.matricula?.trim(),
+      rfc: user.rfc?.trim().toUpperCase(),
+    }
     if (!USE_DEMO) {
       let updated = await request<User>(
         `/${user.role === 'company' ? 'companies' : 'students'}/profile`,
