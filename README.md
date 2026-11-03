@@ -1,5 +1,18 @@
 # Bolsa Prácticas UAS
 
+## Docker y formatos de registro
+
+La guía [Docker y actualización de BD](docs/docker.md) explica los Dockerfiles,
+Compose, variables, respaldos y la diferencia entre SQL de creación y migraciones.
+Con `docker/.env` preparado: `docker compose --env-file docker/.env up --build -d`.
+Frontend en 8080; API en 3000. La inicialización aplica migraciones y catálogos,
+sin importar el SQL demo ni modificar la configuración local existente.
+
+Registro y edición validan teléfono opcional de 10 dígitos, matrícula numérica de
+hasta 20 dígitos y RFC de persona moral (12 caracteres) o física (13), con fecha
+válida y homoclave. La matrícula conserva ceros iniciales. La validación del RFC
+es de formato, no una consulta al SAT.
+
 El frontend de Figma está en `frontend/` (React y TypeScript). La API está en `backend/` (Express por módulos, JavaScript, Prisma y JWT). Las semillas compartidas están en `fixtures/seed-data.json`.
 
 Desde la raíz:

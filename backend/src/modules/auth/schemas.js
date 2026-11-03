@@ -1,4 +1,9 @@
 import { z } from 'zod'
+import {
+  phoneSchema,
+  matriculaSchema,
+  rfcSchema,
+} from '../../lib/registration-validation.js'
 export const emailSchema = z
   .string()
   .trim()
@@ -24,20 +29,12 @@ export const registrationSchema = z.object({
     (value) => value.length >= 8,
     'Usa una contraseña de al menos 8 caracteres.',
   ),
-  matricula: text(20).optional(),
+  matricula: matriculaSchema.optional(),
   career: text(120).optional(),
-  rfc: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .regex(
-      /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/,
-      'El RFC no tiene un formato válido.',
-    )
-    .optional(),
+  rfc: rfcSchema.optional(),
   giro: text(100).optional(),
   address: text(255).optional(),
-  phone: z.string().trim().max(30).optional(),
+  phone: phoneSchema.optional(),
 })
 export const loginSchema = z.object({
   email: emailSchema,

@@ -40,14 +40,20 @@ export function setup() {
 }
 export function registration(role = 'student', extra = {}) {
   const suffix = randomUUID().replaceAll('-', '').slice(0, 10)
+  const rfcDate = new Date(
+    Date.UTC(2000, 0, 1 + (parseInt(suffix.slice(0, 6), 16) % 9000)),
+  )
+    .toISOString()
+    .slice(2, 10)
+    .replaceAll('-', '')
   return {
     role,
     name: role === 'student' ? 'Estudiante Prueba' : 'Empresa Prueba',
     email: `test-${suffix}@uas.edu`,
     password,
-    matricula: suffix,
+    matricula: BigInt(`0x${suffix}`).toString(),
     career: 'Ingeniería en Software',
-    rfc: `TST${String(parseInt(suffix.slice(0, 6), 16) % 1000000).padStart(6, '0')}${suffix.slice(-3).toUpperCase()}`,
+    rfc: `TST${rfcDate}${suffix.slice(-3).toUpperCase()}`,
     giro: 'Tecnología',
     address: 'Calle de pruebas 123',
     ...extra,

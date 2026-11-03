@@ -1,7 +1,9 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -29,37 +31,53 @@ const AuthContext =
 globalContexts[authContextKey] = AuthContext
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [sessionError, setSessionError] = useState('')
+  const sessionVersion = useRef(0)
+  // Login, verification and logout supersede any older session lookup.
+  const setUser = useCallback((nextUser: User | null) => {
+    sessionVersion.current++
+    setCurrentUser(nextUser)
+    setSessionError('')
+    setLoading(false)
+  }, [])
   const loadSession = () => {
+    const version = ++sessionVersion.current
     setLoading(true)
     setSessionError('')
     api
       .getSession()
-      .then(setUser)
-      .catch((error) =>
-        setSessionError(
-          getErrorMessage(error, 'No pudimos consultar tu sesión.'),
-        ),
-      )
-      .finally(() => setLoading(false))
-  }
-  useEffect(() => {
-    let active = true
-    api
-      .getSession()
       .then((session) => {
-        if (active) setUser(session)
+        if (version === sessionVersion.current) setCurrentUser(session)
       })
       .catch((error) => {
-        if (active)
+        if (version === sessionVersion.current)
           setSessionError(
             getErrorMessage(error, 'No pudimos consultar tu sesión.'),
           )
       })
       .finally(() => {
-        if (active) setLoading(false)
+        if (version === sessionVersion.current) setLoading(false)
+      })
+  }
+  useEffect(() => {
+    let active = true
+    const version = sessionVersion.current
+    api
+      .getSession()
+      .then((session) => {
+        if (active && version === sessionVersion.current)
+          setCurrentUser(session)
+      })
+      .catch((error) => {
+        if (active && version === sessionVersion.current)
+          setSessionError(
+            getErrorMessage(error, 'No pudimos consultar tu sesión.'),
+          )
+      })
+      .finally(() => {
+        if (active && version === sessionVersion.current) setLoading(false)
       })
     const unsubscribe = onSessionExpired(() => {
       setUser(null)

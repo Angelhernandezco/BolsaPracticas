@@ -1,5 +1,6 @@
 import { AgreementSummary } from '../components/AgreementBadge'
 import { agreementDates } from '../lib/agreements'
+import { phoneError, rfcError } from '../lib/registration-validation'
 import {
   BriefcaseBusiness,
   CheckCircle2,
@@ -1059,12 +1060,10 @@ export function CompanyProfile() {
     if (saving) return
     setSaving(true)
     setMessage('')
-    const rfcOk = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(
-      (form.rfc || '').toUpperCase(),
-    )
-    if (!rfcOk) {
+    const formatError = rfcError(form.rfc || '') || phoneError(form.phone || '')
+    if (formatError) {
       setSaving(false)
-      return setMessage('Revisa el formato del RFC.')
+      return setMessage(formatError)
     }
     try {
       const updated = await api.updateProfile(form)
@@ -1128,6 +1127,7 @@ export function CompanyProfile() {
             </Field>
             <Field label="RFC">
               <Input
+                maxLength={13}
                 value={form.rfc || ''}
                 onChange={(event) =>
                   set('rfc', event.target.value.toUpperCase())
@@ -1145,6 +1145,10 @@ export function CompanyProfile() {
             </Field>
             <Field label="Teléfono">
               <Input
+                type="tel"
+                placeholder="10 dígitos, sin espacios ni guiones"
+                inputMode="numeric"
+                maxLength={10}
                 value={form.phone || ''}
                 onChange={(event) => set('phone', event.target.value)}
               />

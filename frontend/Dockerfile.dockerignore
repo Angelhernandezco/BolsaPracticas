@@ -1,0 +1,14 @@
+**
+!frontend/
+!frontend/**
+!fixtures/
+!fixtures/seed-data.json
+**/node_modules
+**/dist
+**/.env*
+**/.git
+**/.cache
+**/.vite
+**/*.log
+**/*.tsbuildinfo
+frontend/Dockerfile*

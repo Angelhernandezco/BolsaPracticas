@@ -1,4 +1,8 @@
 {
+  "title": "Bolsa de prácticas",
+  "icons": {
+    "icon": "/favicon.svg?v=bolsa-1"
+  },
   "description": "Centralizes internship listings for university students and enables companies to post, manage vacancies, and review applications with role-based access.",
   "robots": {
     "index": false

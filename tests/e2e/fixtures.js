@@ -26,3 +26,11 @@ export async function verificationUrl(email) {
   return m.url
 }
 export const unique = () => `${Date.now()}${Math.floor(Math.random() * 10000)}`
+// Real calendar date plus an independent suffix; timestamps are not RFC dates.
+export function companyRfc(prefix = 'TST') {
+  const bytes = randomBytes(6)
+  const year = String(10 + (bytes[0] % 17)).padStart(2, '0')
+  const month = String(1 + (bytes[1] % 12)).padStart(2, '0')
+  const day = String(1 + (bytes[2] % 28)).padStart(2, '0')
+  return `${prefix}${year}${month}${day}${bytes.subarray(3).toString('hex').slice(0, 3).toUpperCase()}`
+}

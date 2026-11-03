@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { login, unique, password, verificationUrl } from './fixtures.js'
+import {
+  login,
+  unique,
+  password,
+  verificationUrl,
+  companyRfc,
+} from './fixtures.js'
 import { readFile } from 'node:fs/promises'
 async function createCompany(page) {
   const id = unique(),
@@ -10,7 +16,7 @@ async function createCompany(page) {
       name: `Convenio ${id}`,
       email,
       password,
-      rfc: `CVA${id.slice(-9)}`,
+      rfc: companyRfc('CVA'),
       giro: 'Servicios',
       address: 'Dirección de prueba',
     },

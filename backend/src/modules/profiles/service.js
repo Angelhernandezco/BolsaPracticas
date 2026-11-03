@@ -1,16 +1,21 @@
 import { selectCareers } from '../careers/service.js'
 import { z } from 'zod'
+import {
+  phoneSchema,
+  matriculaSchema,
+  rfcSchema,
+} from '../../lib/registration-validation.js'
 import { emailSchema } from '../auth/schemas.js'
 import { invalid } from '../../lib/errors.js'
 import { serializeUser, userInclude } from '../../lib/serializers.js'
 const base = {
   name: z.string().trim().min(1).max(80),
-  phone: z.string().trim().max(30).nullish(),
+  phone: phoneSchema.nullish(),
   bio: z.string().max(10000).nullish(),
 }
 const student = z.object({
   ...base,
-  matricula: z.string().trim().min(1).max(20),
+  matricula: matriculaSchema,
   career: z.string().min(1).optional(),
   careerId: z
     .string()
@@ -19,11 +24,7 @@ const student = z.object({
 })
 const company = z.object({
   ...base,
-  rfc: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .regex(/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/),
+  rfc: rfcSchema,
   giro: z.string().trim().min(1).max(100),
   address: z.string().trim().min(1).max(255),
   contact: emailSchema.optional(),

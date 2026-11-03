@@ -23,6 +23,7 @@ export function createApp({
   storage,
 }) {
   const app = express()
+  app.set('trust proxy', config.trustProxy ?? false)
   app.disable('x-powered-by')
   installSecurity(app, config)
   app.use(express.json({ limit: '128kb' }))
